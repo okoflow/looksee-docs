@@ -36,11 +36,11 @@ Telegram, Discord, Slack, 이메일, MQTT 액션은 다음 자리 표시자가 �
 
 ## Alert
 
-이벤트를 알림 기록에 기록하고 모니터에 표시합니다. 필드: **severity**(`info`, `warning`, `critical`)와 초 단위 **cooldown**(재알림 대기 시간, 0~3600, 기본 30). 재알림 대기 시간 안에 같은 카메라에서 반복되는 이벤트는 버려지며, `0`은 모든 이벤트를 기록합니다. Alert는 LookSee 안에 기록이 남는 유일한 액션입니다. [모니터링과 알림](monitoring-and-alerts.md)에서 다룹니다.
+이벤트를 알림 기록에 기록하고 모니터에 표시합니다. 필드: `severity`(`info`, `warning`, `critical`)와 초 단위 `cooldown_seconds`(재알림 대기 시간, 0~3600, 기본 30). 재알림 대기 시간 안에 같은 카메라에서 반복되는 이벤트는 버려지며, `0`은 모든 이벤트를 기록합니다. Alert는 LookSee 안에 기록이 남는 유일한 액션입니다. [모니터링과 알림](monitoring-and-alerts.md)에서 다룹니다.
 
 ## Snapshot
 
-카메라의 최신 프레임을 JPEG로 저장하며, **annotate**가 켜져 있으면(기본값) 탐지를 그려 넣습니다. Snapshot은 출력이 있는 유일한 액션입니다. 사진을 함께 보내야 하는 액션을 그 뒤에 연결합니다. 이 액션들은 템플릿과 페이로드용 `snapshot_url`을 받고, Telegram, Discord, Slack, 이메일은 이미지 자체를 첨부합니다.
+카메라의 최신 프레임을 JPEG로 저장하며, `annotate`가 켜져 있으면(기본값) 탐지를 그려 넣습니다. Snapshot은 출력이 있는 유일한 액션입니다. 사진을 함께 보내야 하는 액션을 그 뒤에 연결합니다. 이 액션들은 템플릿과 페이로드용 `snapshot_url`을 받고, Telegram, Discord, Slack, 이메일은 이미지 자체를 첨부합니다.
 
 ## Webhook
 
@@ -60,11 +60,11 @@ Enterprise 에디션. `slack_webhook` 자격 증명으로 저장한 Slack 수신
 
 ## Email
 
-제목 템플릿과 본문 템플릿으로 SMTP를 통해 메시지를 보내고, 스냅샷이 있으면 첨부합니다. 서버를 `smtp` 자격 증명으로 저장합니다. `starttls`는 연결 후 암호화로 전환하며, 포트 587이 기대하는 방식입니다. 발신자는 `from_address`이고, 비어 있으면 `username`입니다. 필드: **to**. 주소 하나 또는 서버가 허용하는 쉼표로 구분된 목록.
+제목 템플릿과 본문 템플릿으로 SMTP를 통해 메시지를 보내고, 스냅샷이 있으면 첨부합니다. 서버를 `smtp` 자격 증명으로 저장합니다. `starttls`는 연결 후 암호화로 전환하며, 포트 587이 기대하는 방식입니다. 발신자는 `from_address`이고, 비어 있으면 `username`입니다. 필드: `to`. 주소 하나 또는 서버가 허용하는 쉼표로 구분된 목록.
 
 ## MQTT
 
-`mqtt` 자격 증명으로 저장한 브로커의 토픽에 게시합니다. 필드: **topic**(기본 `looksee/events`)과 **payload template**. 템플릿이 비어 있으면 웹훅과 같은 JSON을 게시하고, 템플릿이 있으면 렌더링된 텍스트를 게시합니다. 연결은 5초 후 시간 초과됩니다.
+`mqtt` 자격 증명으로 저장한 브로커의 토픽에 게시합니다. 필드: `topic`(기본 `looksee/events`)과 `payload_template`. 템플릿이 비어 있으면 웹훅과 같은 JSON을 게시하고, 템플릿이 있으면 렌더링된 텍스트를 게시합니다. 연결은 5초 후 시간 초과됩니다.
 
 ## 전달 동작
 

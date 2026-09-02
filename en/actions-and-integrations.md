@@ -50,7 +50,7 @@ logged.
 ## Alert
 
 Records the event in the alert history and shows it in the monitor. Fields:
-**severity** (`info`, `warning`, `critical`) and **cooldown** in seconds (0
+`severity` (`info`, `warning`, `critical`) and `cooldown_seconds` in seconds (0
 to 3600, default 30). Within the cooldown, repeats on the same camera are
 dropped; `0` records every event. Alerts are the only action with a history
 inside LookSee; [Monitoring and alerts](monitoring-and-alerts.md) covers it.
@@ -58,7 +58,7 @@ inside LookSee; [Monitoring and alerts](monitoring-and-alerts.md) covers it.
 ## Snapshot
 
 Saves the camera's latest frame as a JPEG, drawn with the detections when
-**annotate** is on (the default). Snapshot is the one action that has an
+`annotate` is on (the default). Snapshot is the one action that has an
 output: connect the actions that should carry the picture after it. They
 receive `snapshot_url` for templates and payloads, and Telegram, Discord,
 Slack, and email attach the image itself.
@@ -97,12 +97,12 @@ Sends a message through SMTP with a subject and a body template and attaches
 the snapshot when one is available. Store the server as an `smtp` credential.
 `starttls` upgrades the connection after connecting, which is what port 587
 expects; the sender is `from_address`, or `username` when it is empty.
-Field: **to**, one address or a comma-separated list accepted by your server.
+Field: `to`, one address or a comma-separated list accepted by your server.
 
 ## MQTT
 
 Publishes to a topic on a broker stored as an `mqtt` credential. Fields:
-**topic** (default `looksee/events`) and **payload template**. An empty
+`topic` (default `looksee/events`) and `payload_template`. An empty
 template publishes the same JSON as the webhook; a template publishes its
 rendered text. Connections time out after five seconds.
 

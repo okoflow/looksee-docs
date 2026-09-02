@@ -4,8 +4,8 @@
 
 Every workflow has a monitor page that shows the camera live with detection
 overlays, a feed of the events the graph produces, and the alert history.
-The header switches between **Editor** and **Monitor** and holds the **Run**
-and **Stop** button.
+The header switches between **Editor** and **Monitor** and holds the **Run** or
+**Stop** button.
 
 ![The monitor with a zone overlay and the live event feed](../images/monitor.png)
 
