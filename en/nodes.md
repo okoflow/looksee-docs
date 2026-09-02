@@ -130,7 +130,7 @@ workflow are independent.
 | Field | Default | Limits | Passes when |
 | --- | --- | --- | --- |
 | `line` | empty | exactly 2 points on **Run** | A tracked object's centre moved from one side of the line to the other since the previous check |
-| `direction` | `any` | `any`, `in`, `out` | `in` counts crossings from left to right relative to the drawing direction of the line, `out` the opposite |
+| `direction` | `any` | `any`, `in`, `out` | `in` counts an object crossing from the left side of the line to its right side when looking from the first point to the second; `out` counts the opposite direction |
 
 Relies on tracking ids; raise **Checks per second** for fast objects.
 

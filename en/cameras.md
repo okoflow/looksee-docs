@@ -104,10 +104,10 @@ proxies and TLS.
 The monitor shows the status badge next to the camera name and the workflow
 list shows it per workflow.
 
-- **Pending**: the worker is starting. For pull sources the first frame
+- **Pending** (**Starting** in the monitor): the worker is starting. For pull sources the first frame
   usually arrives within a few seconds; the inference service gives up after
   `FIRST_FRAME_TIMEOUT_SECONDS` (30 seconds) and reports an error.
-- **Active**: frames are flowing.
+- **Active** (**Live** in the monitor): frames are flowing.
 - **Error**: the stream failed or stalled for 30 seconds. The API retries
   with a delay that doubles from 30 seconds up to 5 minutes. The reason is
   shown in the monitor and in the `api` and `inference` logs.

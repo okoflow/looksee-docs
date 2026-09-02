@@ -79,6 +79,9 @@ Every Camera node in a workflow becomes a camera record with a status:
 | **Error** | The stream failed; the API retries with a growing delay |
 | **Off** | The workflow is stopped |
 
+The monitor shows the same states as **Starting**, **Live**, **Error**, and
+**Off**; the API reports them as `pending`, `active`, `error`, and `disabled`.
+
 Starting a workflow asks MediaMTX to expose one path per camera and asks the
 inference service to start one worker per camera. Each start is a *run* with
 a revision number, so a stopped or reconfigured camera cannot be resurrected
