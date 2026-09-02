@@ -76,7 +76,8 @@ the upstream model can produce.
 | --- | --- | --- | --- |
 | `classes` | empty | up to 64 labels | Any detection has one of the labels. Empty passes everything. |
 
-Labels must belong to the upstream model.
+Labels must belong to the upstream model. An event with no detections fails
+this filter.
 
 ### Size — `size_filter`
 

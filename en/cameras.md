@@ -91,7 +91,7 @@ web port:
 | --- | --- | --- |
 | `8889` | TCP | Browsers, for WebRTC signalling and playback (WHEP) and webcam publishing (WHIP) |
 | `8189` | UDP | Browsers, for the WebRTC media (ICE) |
-| `8554` | TCP | Encoders that push RTSP; not needed for pull sources |
+| `8554` | TCP | Encoders that push RTSP into the path of a **Browser webcam** camera (publisher mode); not needed for pull sources |
 
 `WEBRTC_HOST_IP` must be the address browsers can reach: `127.0.0.1` on a
 laptop, the LAN address on a server. MediaMTX advertises it in ICE

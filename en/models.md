@@ -55,7 +55,8 @@ ignored.
 
 Every label becomes an event kind unless the manifest says otherwise. The
 label is upper-cased, runs of characters other than letters and digits become
-`_`, and `_DETECTED` is appended:
+`_`, a label that starts with a digit gets a `CLASS_` prefix, and `_DETECTED` is
+appended:
 
 | Label | Event kind |
 | --- | --- |

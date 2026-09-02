@@ -75,7 +75,7 @@ Click **Save**, then **Run**. LookSee validates the graph and points at the
 node to fix when something is missing: a camera without a URL, a Detect
 without a model, an action without a credential. When the graph is valid the
 workflow status turns **Active** and the camera goes from **Pending** to
-**Active** within a few seconds.
+**Active** (**Starting** to **Live** in the monitor) within a few seconds.
 
 Switch to **Monitor**. The camera plays live with the zone drawn over it,
 detections appear as boxes, the **Live** tab lists events as they enter the
