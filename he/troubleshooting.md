@@ -53,17 +53,22 @@ docker compose logs -f api inference mediamtx studio
 - **סטטוס 402, `feature_not_licensed`**: הגרף מכיל Count, Line crossing, Dwell או Slack בלי רישיון. ראו [מהדורת Enterprise](enterprise.md).
 - **סטטוס 422** עם קוד: הגרף אינו יכול לרוץ כפי שצויר. [טבלת התיקוף](nodes.md#תיקוף) מסבירה כל קוד; הנפוצים הם מצלמה בלי צומת Detect, צומת Detect בלי מודל ופעולה בלי אישור גישה.
 
+## העלאת וידאו נכשלת
+
+העלאה דרך **Assets** או הפעלת מצלמת File מחזירה `503` עם *Video storage is unavailable*. השירות `storage` אינו במצב `healthy`, השירות `storage-init` לא יצר את ה-bucket, או שמשתני `S3_*` מצביעים על נקודת קצה שה-API אינו יכול להגיע אליה. בדקו את `docker compose ps storage` ואת `docker compose logs storage-init`.
+
 ## התראות אינן נמסרות
 
-- **פעולת Alert מופעלת אבל Telegram, Discord, דוא"ל, MQTT או Slack שותקים.** אישור הגישה חסר, מסוג שגוי, או שהשירות דחה את הבקשה. הלוג של `api` רושם כל כשל מסירה בלי הסוד.
+- **פעולת Alert מופעלת אבל Telegram, Discord, דוא"ל, MQTT או Slack שותקים.** אישור הגישה חסר, מסוג שגוי, או שהשירות דחה את הבקשה. `GET /deliveries?status=failed` מציג את השגיאה האחרונה של כל משלוח שנכשל, ו-`POST /deliveries/{id}/retry` שולח אותו שוב; הלוג של `api` רושם כל כשל בלי הסוד.
+- **הודעות מגיעות באיחור.** משלוח שנכשל בפסק זמן או בשגיאת שרת מנוסה שוב עם השהיה גדלה של עד חמש דקות; היעד לא היה נגיש בינתיים.
 - **Telegram** זקוק למזהה של צ'אט שהבוט חבר בו; שלחו לבוט הודעה קודם.
 - **Email** זקוק לשרת שמקבל את `from_address`; ספקים רבים דורשים STARTTLS בפורט 587.
-- יעדי **Webhook** חייבים לענות בתוך חמש שניות.
+- יעדי **Webhook** חייבים לענות בתוך חמש שניות; תגובת `5xx`, `408` או `429` מנוסה שוב, כל שגיאה אחרת לא.
 - **שום דבר לא מופעל.** בדקו שסוג האירוע שנבחר ב-Detect הוא סוג שהמודל מפיק, ושאין מסנן ששולח הכול ל-**Else**.
 
 ## יותר מדי או פחות מדי התראות
 
-- **זמן הצינון של האירועים** (`EVENT_COOLDOWN_SECONDS`) זורק חזרות מאותו סוג בתוך שתי שניות כברירת מחדל.
+- כל אירוע מגיע לגרף; **זמן הצינון של האירועים** (`EVENT_COOLDOWN_SECONDS`) רק מדלל את הפיד החי ואינו מגביל פעולות.
 - ה-**cooldown** של פעולת Alert מדחיק חזרות לכל מצלמה; `0` רושם הכול.
 - מסנן **Debounce** נותן לכל ענף חלון זמן משלו.
 - העלו את **Confidence** כשצללים או השתקפויות מפעילים זיהויים.
@@ -97,4 +102,4 @@ docker compose exec postgres psql -U looksee -d looksee -c "DELETE FROM users;"
 
 ## פורט כבר בשימוש
 
-שנו את פורט המארח ב-`.env`: `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`, `REDIS_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`, `MTX_WEBRTC_ICE_PORT`. כאשר `MTX_WEBRTC_PORT` משתנה, הגדירו את `RUNTIME_MEDIAMTX_WEBRTC_URL` בהתאם.
+שנו את פורט המארח ב-`.env`: `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`, `REDIS_PORT`, `STORAGE_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`, `MTX_WEBRTC_ICE_PORT`. כאשר `MTX_WEBRTC_PORT` משתנה, הגדירו את `RUNTIME_MEDIAMTX_WEBRTC_URL` בהתאם.

@@ -53,17 +53,22 @@ docker compose logs -f api inference mediamtx studio
 - **상태 코드 402, `feature_not_licensed`**: 그래프에 라이선스 없이 Count, Line crossing, Dwell, Slack이 있습니다. [Enterprise 에디션](enterprise.md)을 참고하십시오.
 - 코드가 있는 **상태 코드 422**: 그래프를 그려진 대로 실행할 수 없습니다. [검증 표](nodes.md#검증)가 각 코드를 설명합니다. 흔한 경우는 Detect 노드가 없는 카메라, 모델이 없는 Detect 노드, 자격 증명이 없는 액션입니다.
 
+## 비디오 업로드 실패
+
+**Assets**(자산)로 업로드하거나 File 카메라를 시작하면 *Video storage is unavailable* 메시지와 함께 `503`이 반환됩니다. `storage` 서비스가 `healthy`가 아니거나, `storage-init` 서비스가 버킷을 만들지 못했거나, `S3_*` 변수가 API가 접근할 수 없는 엔드포인트를 가리킵니다. `docker compose ps storage`와 `docker compose logs storage-init`를 확인합니다.
+
 ## 알림이 전달되지 않음
 
-- **Alert 액션은 실행되지만 Telegram, Discord, 이메일, MQTT, Slack이 조용합니다.** 자격 증명이 없거나, 유형이 잘못되었거나, 서비스가 요청을 거부했습니다. `api` 로그는 모든 전달 실패를 시크릿 없이 기록합니다.
+- **Alert 액션은 실행되지만 Telegram, Discord, 이메일, MQTT, Slack이 조용합니다.** 자격 증명이 없거나, 유형이 잘못되었거나, 서비스가 요청을 거부했습니다. `GET /deliveries?status=failed`는 실패한 각 전달의 마지막 오류를 보여 주고, `POST /deliveries/{id}/retry`는 다시 보냅니다. `api` 로그는 모든 실패를 시크릿 없이 기록합니다.
+- **메시지가 늦게 도착합니다.** 타임아웃이나 서버 오류로 실패한 전달은 최대 5분까지 늘어나는 간격으로 재시도됩니다. 그동안 대상에 접근할 수 없었던 것입니다.
 - **Telegram**은 봇이 속한 채팅의 채팅 ID가 필요합니다. 먼저 봇에게 메시지를 보내십시오.
 - **Email**은 `from_address`를 받아 주는 서버가 필요합니다. 많은 공급자가 포트 587에서 STARTTLS를 요구합니다.
-- **Webhook** 대상은 5초 안에 응답해야 합니다.
+- **Webhook** 대상은 5초 안에 응답해야 합니다. `5xx`, `408`, `429` 응답은 재시도되고, 다른 오류는 재시도되지 않습니다.
 - **아무것도 실행되지 않습니다.** Detect에서 선택한 이벤트 종류가 모델이 만드는 것인지, 그리고 어떤 필터가 모든 것을 **Else**로 보내고 있지는 않은지 확인합니다.
 
 ## 알림이 너무 많거나 너무 적음
 
-- **이벤트 재알림 대기 시간**(`EVENT_COOLDOWN_SECONDS`)은 기본적으로 2초 안에 같은 종류가 반복되면 버립니다.
+- 모든 이벤트는 그래프에 도달합니다. **이벤트 재알림 대기 시간**(`EVENT_COOLDOWN_SECONDS`)은 실시간 피드만 솎아 내고 액션을 제한하지 않습니다.
 - Alert 액션의 **cooldown**(재알림 대기 시간)은 카메라별 반복을 억제합니다. `0`은 모두 기록합니다.
 - **Debounce** 필터는 어떤 분기에든 자체 시간 창을 부여합니다.
 - 그림자나 반사가 탐지를 유발하면 **Confidence**(신뢰도)를 높입니다.
@@ -97,4 +102,4 @@ docker compose exec postgres psql -U looksee -d looksee -c "DELETE FROM users;"
 
 ## 포트가 이미 사용 중
 
-`.env`에서 호스트 포트를 바꿉니다. `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`, `REDIS_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`, `MTX_WEBRTC_ICE_PORT`. `MTX_WEBRTC_PORT`를 바꾸면 `RUNTIME_MEDIAMTX_WEBRTC_URL`도 맞게 설정합니다.
+`.env`에서 호스트 포트를 바꿉니다. `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`, `REDIS_PORT`, `STORAGE_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`, `MTX_WEBRTC_ICE_PORT`. `MTX_WEBRTC_PORT`를 바꾸면 `RUNTIME_MEDIAMTX_WEBRTC_URL`도 맞게 설정합니다.
