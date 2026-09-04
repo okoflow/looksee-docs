@@ -6,7 +6,7 @@
 
 ## אימות
 
-כל נקודות הקצה מלבד `/health`, `/auth/*`, `/docs` ו-`/openapi.json` דורשות את העוגייה `looksee_session`. קבלו אותה בהתחברות והשתמשו בה שוב במשך שבעה ימים:
+כל נקודות הקצה מלבד `/health`, `/auth/*`, `/docs`, `/openapi.json` וה-callback של MediaMTX ב-`/internal/media/auth` דורשות את העוגייה `looksee_session`. קבלו אותה בהתחברות והשתמשו בה שוב במשך שבעה ימים; `/auth/login` ו-`/auth/setup` מקבלים 20 ניסיונות ללקוח ו-100 בסך הכול בדקה, ואז עונים `429`:
 
 ```bash
 curl -c cookies.txt -H 'content-type: application/json' \
@@ -28,10 +28,12 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | --- | --- |
 | `401` | סשן חסר או לא תקין; דוא"ל או סיסמה שגויים |
 | `402` | הגרף משתמש בצומת Enterprise בלי רישיון (`feature_not_licensed`) |
-| `404` | תהליך עבודה, התראה, אישור גישה או נכס לא מוכרים |
-| `409` | חשבון הבעלים כבר קיים |
+| `403` | כותרת `Origin` אינה תואמת לא ל-`CORS_ORIGIN_REGEX` ולא למקור של ה-API עצמו |
+| `404` | תהליך עבודה, מצלמה, התראה, אישור גישה, משלוח או נכס לא מוכרים |
+| `409` | חשבון הבעלים כבר קיים; ניסיון חוזר של משלוח שלא נכשל |
 | `422` | התיקוף נכשל: שדה מחוץ לטווח, או שהגרף אינו יכול לרוץ (`code` מוגדר) |
-| `503` | ספריית הנכסים אינה מוגדרת |
+| `429` | יותר מדי ניסיונות התחברות; המתינו `Retry-After` |
+| `503` | אחסון הווידאו אינו מוגדר או אינו נגיש; התחברות בזמן ש-Valkey אינו זמין |
 
 [צמתים](nodes.md#תיקוף) מפרט כל קוד שגיאה של גרף.
 
@@ -48,6 +50,13 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | `POST /auth/logout` | מנקה את העוגייה |
 | `GET /auth/me` | המשתמש המחובר |
 | `GET /entitlements` | `{"edition": "community", "features": []}` או תכונות ה-Enterprise |
+
+### מדיה
+
+| שיטה ונתיב | תיאור |
+| --- | --- |
+| `POST /cameras/{camera_id}/media-access` | `action` של `read` או `publish`; מחזיר `token` עבור MediaMTX, תקף חמש דקות. פרסום מאושר למצלמות Browser webcam בלבד. |
+| `POST /internal/media/auth` | נקרא על ידי MediaMTX לכל חיבור; עונה `204` או `401`. לא מיועד ללקוחות. |
 
 ### מודלים
 
@@ -103,9 +112,18 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | `PATCH /credentials/{id}` | עדכון חלקי של `name` ו-`payload`; השמטת `payload` שומרת על הסוד הקיים |
 | `DELETE /credentials/{id}` | מחיקה |
 
+### משלוחים
+
+הודעות Webhook, Telegram, Discord, Slack, דוא"ל ו-MQTT שהגרף הכניס לתור; [ניטור והתראות](monitoring-and-alerts.md#משלוחים) מסביר את מדיניות הניסיונות החוזרים.
+
+| שיטה ונתיב | תיאור |
+| --- | --- |
+| `GET /deliveries` | החדשים ראשונים: `id`, `status` (`pending`, `processing`, `sent`, `failed`), `attempts`, `available_at`, `last_error`, `created_at`. מסננים: `status`, `limit` (1 עד 100, ברירת מחדל 50) |
+| `POST /deliveries/{id}/retry` | הכנסת משלוח שנכשל לתור מחדש; מחזיר `204`, או `409` כשהוא לא נכשל |
+
 ### נכסים
 
-זמין כשספריית הנכסים מוגדרת; אחרת כל קריאה מחזירה `503`.
+זמין כשספריית הנכסים מוגדרת, מה שסטאק ה-compose עושה כברירת מחדל; כל קריאה מחזירה `503` בזמן שהאחסון אינו נגיש.
 
 | שיטה ונתיב | תיאור |
 | --- | --- |
@@ -125,7 +143,7 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | סוג | שדות | מתי |
 | --- | --- | --- |
 | `detections` | `ts`, `frame_width`, `frame_height`, `detections[]` | כל פריים מעובד |
-| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | כל אירוע שעובר את זמן הצינון של האירועים |
+| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | כל אירוע שהגרף מקבל, לכל היותר אחד לכל סוג ומצלמה בתוך `EVENT_COOLDOWN_SECONDS` |
 | `worker` | `status`, `ts`, `reason` | המצלמה משנה מצב |
 | `alert` | `id`, `kind`, `severity`, `message`, `ts`, `snapshot_url` | פעולת Alert מופעלת |
 

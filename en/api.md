@@ -9,9 +9,11 @@ Interactive documentation with request and response schemas is served at
 
 ## Authentication
 
-All endpoints except `/health`, `/auth/*`, `/docs`, and `/openapi.json`
-require the `looksee_session` cookie. Obtain it by signing in and reuse it
-for seven days:
+All endpoints except `/health`, `/auth/*`, `/docs`, `/openapi.json`, and
+the MediaMTX callback `/internal/media/auth` require the `looksee_session`
+cookie. Obtain it by signing in and reuse it for seven days; `/auth/login`
+and `/auth/setup` accept 20 attempts per client and 100 in total per
+minute, then answer `429`:
 
 ```bash
 curl -c cookies.txt -H 'content-type: application/json' \
@@ -35,10 +37,12 @@ it:
 | --- | --- |
 | `401` | Missing or invalid session; wrong email or password |
 | `402` | The graph uses an Enterprise node without a license (`feature_not_licensed`) |
-| `404` | Unknown workflow, alert, credential, or asset |
-| `409` | The owner account already exists |
+| `403` | The `Origin` header matches neither `CORS_ORIGIN_REGEX` nor the API's own origin |
+| `404` | Unknown workflow, camera, alert, credential, delivery, or asset |
+| `409` | The owner account already exists; a retry of a delivery that has not failed |
 | `422` | Validation failed: a field is out of range, or the graph cannot run (`code` set) |
-| `503` | The asset library is not configured |
+| `429` | Too many sign-in attempts; wait for `Retry-After` |
+| `503` | Video storage is not configured or unreachable; sign-in while Valkey is unavailable |
 
 [Nodes](nodes.md#validation) lists every graph error code.
 
@@ -55,6 +59,13 @@ it:
 | `POST /auth/logout` | Clears the cookie |
 | `GET /auth/me` | The signed-in user |
 | `GET /entitlements` | `{"edition": "community", "features": []}` or the Enterprise features |
+
+### Media
+
+| Method and path | Description |
+| --- | --- |
+| `POST /cameras/{camera_id}/media-access` | `action` of `read` or `publish`; returns a `token` for MediaMTX, valid for five minutes. Publishing is granted for Browser webcam cameras only. |
+| `POST /internal/media/auth` | Called by MediaMTX for every connection; answers `204` or `401`. Not for clients. |
 
 ### Models
 
@@ -116,10 +127,21 @@ Snapshot ran before the Alert), and `created_at`.
 | `PATCH /credentials/{id}` | Partial update of `name` and `payload`; omitting `payload` keeps the stored secret |
 | `DELETE /credentials/{id}` | Delete |
 
+### Deliveries
+
+Webhook, Telegram, Discord, Slack, Email, and MQTT messages queued by the
+graph; [Monitoring and alerts](monitoring-and-alerts.md#deliveries) explains
+the retry policy.
+
+| Method and path | Description |
+| --- | --- |
+| `GET /deliveries` | Newest first: `id`, `status` (`pending`, `processing`, `sent`, `failed`), `attempts`, `available_at`, `last_error`, `created_at`. Filters: `status`, `limit` (1 to 100, default 50) |
+| `POST /deliveries/{id}/retry` | Queue a failed delivery again; returns `204`, or `409` when it has not failed |
+
 ### Assets
 
-Available when the asset library is configured; otherwise every call returns
-`503`.
+Available when the asset library is configured, which the compose stack does
+by default; every call returns `503` while the storage is unreachable.
 
 | Method and path | Description |
 | --- | --- |
@@ -142,7 +164,7 @@ inbound frames are ignored. Every message is JSON with a `type`:
 | Type | Fields | When |
 | --- | --- | --- |
 | `detections` | `ts`, `frame_width`, `frame_height`, `detections[]` | Every processed frame |
-| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | Every event that passes the event cooldown |
+| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | Every event the graph receives, at most one per kind and camera within `EVENT_COOLDOWN_SECONDS` |
 | `worker` | `status`, `ts`, `reason` | The camera changes status |
 | `alert` | `id`, `kind`, `severity`, `message`, `ts`, `snapshot_url` | An Alert action fires |
 

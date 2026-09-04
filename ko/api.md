@@ -6,7 +6,7 @@ API는 포트 `8000`의 FastAPI 서비스입니다. Studio가 유일한 기본 �
 
 ## 인증
 
-`/health`, `/auth/*`, `/docs`, `/openapi.json`을 제외한 모든 엔드포인트는 `looksee_session` 쿠키를 요구합니다. 로그인해서 쿠키를 얻고 7일 동안 재사용합니다.
+`/health`, `/auth/*`, `/docs`, `/openapi.json`, 그리고 MediaMTX 콜백 `/internal/media/auth`를 제외한 모든 엔드포인트는 `looksee_session` 쿠키를 요구합니다. 로그인해서 쿠키를 얻고 7일 동안 재사용합니다. `/auth/login`과 `/auth/setup`은 클라이언트당 분당 20회, 전체 분당 100회의 시도를 허용하고 그 뒤에는 `429`로 응답합니다.
 
 ```bash
 curl -c cookies.txt -H 'content-type: application/json' \
@@ -28,10 +28,12 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | --- | --- |
 | `401` | 세션이 없거나 잘못됨. 이메일이나 비밀번호가 틀림 |
 | `402` | 그래프가 라이선스 없이 Enterprise 노드를 사용함(`feature_not_licensed`) |
-| `404` | 알 수 없는 워크플로, 알림, 자격 증명, 자산 |
-| `409` | 소유자 계정이 이미 존재함 |
+| `403` | `Origin` 헤더가 `CORS_ORIGIN_REGEX`에도 API 자신의 오리진에도 맞지 않음 |
+| `404` | 알 수 없는 워크플로, 카메라, 알림, 자격 증명, 전달, 자산 |
+| `409` | 소유자 계정이 이미 존재함. 실패하지 않은 전달을 재시도함 |
 | `422` | 검증 실패. 필드가 범위를 벗어났거나 그래프를 실행할 수 없음(`code` 설정됨) |
-| `503` | 자산 라이브러리가 구성되지 않음 |
+| `429` | 로그인 시도가 너무 많음. `Retry-After`만큼 기다림 |
+| `503` | 비디오 저장소가 구성되지 않았거나 접근할 수 없음. Valkey를 사용할 수 없는 동안의 로그인 |
 
 [노드](nodes.md#검증)에 모든 그래프 오류 코드가 나열되어 있습니다.
 
@@ -48,6 +50,13 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | `POST /auth/logout` | 쿠키를 지움 |
 | `GET /auth/me` | 로그인한 사용자 |
 | `GET /entitlements` | `{"edition": "community", "features": []}` 또는 Enterprise 기능 |
+
+### 미디어
+
+| 메서드와 경로 | 설명 |
+| --- | --- |
+| `POST /cameras/{camera_id}/media-access` | `action`은 `read` 또는 `publish`. MediaMTX용 `token`을 반환하며 5분간 유효합니다. 송출은 Browser webcam 카메라에만 허가됩니다. |
+| `POST /internal/media/auth` | MediaMTX가 모든 연결에 대해 호출합니다. `204` 또는 `401`로 응답하며, 클라이언트용이 아닙니다. |
 
 ### 모델
 
@@ -103,9 +112,18 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | `PATCH /credentials/{id}` | `name`과 `payload`의 부분 업데이트. `payload`를 생략하면 저장된 비밀 값이 유지됨 |
 | `DELETE /credentials/{id}` | 삭제 |
 
+### 전달
+
+그래프가 큐에 넣은 Webhook, Telegram, Discord, Slack, Email, MQTT 메시지입니다. 재시도 정책은 [모니터링과 알림](monitoring-and-alerts.md#전달)에서 설명합니다.
+
+| 메서드와 경로 | 설명 |
+| --- | --- |
+| `GET /deliveries` | 최신순. `id`, `status`(`pending`, `processing`, `sent`, `failed`), `attempts`, `available_at`, `last_error`, `created_at`. 필터: `status`, `limit`(1에서 100, 기본 50) |
+| `POST /deliveries/{id}/retry` | 실패한 전달을 다시 큐에 넣습니다. `204`를 반환하며, 실패 상태가 아니면 `409` |
+
 ### 자산
 
-자산 라이브러리가 구성된 경우에 사용할 수 있습니다. 아니면 모든 호출이 `503`을 반환합니다.
+자산 라이브러리가 구성된 경우에 사용할 수 있으며, compose 스택은 기본적으로 구성합니다. 저장소에 접근할 수 없는 동안에는 모든 호출이 `503`을 반환합니다.
 
 | 메서드와 경로 | 설명 |
 | --- | --- |
@@ -125,7 +143,7 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 | 유형 | 필드 | 시점 |
 | --- | --- | --- |
 | `detections` | `ts`, `frame_width`, `frame_height`, `detections[]` | 처리된 모든 프레임 |
-| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | 이벤트 재알림 대기 시간을 통과한 모든 이벤트 |
+| `event` | `kind`, `ts`, `frame_width`, `frame_height`, `detections[]` | 그래프가 받는 모든 이벤트. 같은 종류와 카메라에 대해 `EVENT_COOLDOWN_SECONDS` 안에 최대 하나 |
 | `worker` | `status`, `ts`, `reason` | 카메라 상태가 바뀔 때 |
 | `alert` | `id`, `kind`, `severity`, `message`, `ts`, `snapshot_url` | Alert 액션이 실행될 때 |
 
