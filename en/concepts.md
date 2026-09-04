@@ -56,17 +56,17 @@ the centre of each detection against a polygon, Class tests the labels, Size
 tests the box area, If / Else compares the kind, the class, the count, or the
 highest confidence.
 
-Three throttles keep event storms in check:
+Every event enters the graph; three windows keep repeats in check:
 
-- **Event cooldown** (`EVENT_COOLDOWN_SECONDS`, 2 seconds by default) drops
-  repeats of the same event kind on the same camera before they enter the
-  graph.
+- **Event cooldown** (`EVENT_COOLDOWN_SECONDS`, 2 seconds by default) limits
+  how often the live event feed shows the same event kind on the same
+  camera. It does not hold events back from the graph.
 - **Debounce** is a filter you place where you want it, with its own window.
 - **Alert cooldown** is a field on the Alert action and applies to the alert
   history only.
 
-Events and throttles live in the memory of the API process. They reset when
-the API restarts and are not shared between API replicas.
+Filter state and cooldowns live in the memory of the API process. They reset
+when the API restarts and are not shared between API replicas.
 
 ## Cameras and runs
 
