@@ -114,14 +114,15 @@ keep a CPU deployment comfortable:
 - Keep **Checks per second** at 1 to 2 unless the scenario needs more.
 
 Raise `INFERENCE_CPUS` and `INFERENCE_MEMORY` as cameras are added. The API,
-PostgreSQL, and Valkey are light by comparison. Run one API replica: event
-cooldowns and tracking state live in the API's memory.
+PostgreSQL, and Valkey are light by comparison. Run one API replica: filter
+state and cooldowns live in the API's memory.
 
 ## Backups
 
-State lives in two volumes worth backing up, `postgres_data` and `api_keys`,
-plus `api_snapshots` if you keep evidence images. Compose prefixes volume
-names with the project name, `looksee` by default.
+State lives in three volumes worth backing up: `postgres_data`, `api_keys`,
+and `storage_data` with the uploaded videos, plus `api_snapshots` if you
+keep evidence images. Compose prefixes volume names with the project name,
+`looksee` by default.
 
 ```bash
 # Database
@@ -132,6 +133,10 @@ docker run --rm -v looksee_api_keys:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_keys.tgz -C /data .
 docker run --rm -v looksee_api_snapshots:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_snapshots.tgz -C /data .
+
+# Uploaded videos
+docker run --rm -v looksee_storage_data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/storage_data.tgz -C /data .
 ```
 
 Restore into a fresh stack by starting `postgres` alone, loading the dump
@@ -147,9 +152,11 @@ docker compose up -d --build
 ```
 
 The `api-migrate` service applies database migrations before the API starts,
-and the API and inference service must run the same version because their
-message contracts change together. Check `docker compose ps` afterwards; the
-[changelog](changelog.md) lists changes that need operator action.
+and the API, the inference service, Studio, and MediaMTX must run the same
+version because their contracts change together. Read the
+[changelog](changelog.md) first: a release can add a required variable to
+`.env`, without which compose refuses to start. Check `docker compose ps`
+afterwards.
 
 ## Native services
 
