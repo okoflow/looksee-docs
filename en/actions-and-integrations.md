@@ -67,9 +67,10 @@ Slack, and email attach the image itself.
 
 Sends the event as JSON to a URL with the chosen method (`POST` by default,
 `GET` or `PUT`). No credential is needed; put a token into the URL if the
-receiver requires one. The request times out after five seconds, and a
-non-2xx response is logged, not retried. The payload is documented in
-[API](api.md#webhook-payload).
+receiver requires one. The request times out after five seconds; `5xx`,
+`408`, and `429` responses are retried, other errors are not. Each request
+carries the delivery id in an `Idempotency-Key` header. The payload is
+documented in [API](api.md#webhook-payload).
 
 ## Telegram
 
@@ -108,9 +109,17 @@ rendered text. Connections time out after five seconds.
 
 ## Delivery behaviour
 
-- Actions run in graph order for every event that reaches them. An action
-  that fails logs the error and does not stop the other actions.
-- Each action runs at most once per event, even when two branches lead to it.
+- Alert and Snapshot run inline, in graph order, for every event that
+  reaches them. Webhook, Telegram, Discord, Slack, Email, and MQTT are
+  queued as deliveries in PostgreSQL and sent by a worker in the API, so a
+  slow receiver does not hold up detection.
+- A delivery that fails for a transient reason (a timeout, HTTP `408`,
+  `429`, or `5xx`) is retried with a delay that doubles after each attempt,
+  up to five minutes and at most eight attempts. Other failures are final.
+  A message is delivered at least once; `GET /deliveries` lists the queue.
+- An action that fails does not stop the other actions of the event, and
+  each action runs at most once per event, even when two branches lead to
+  it.
 - Secrets never appear in logs; delivery failures are logged with the action
   and the status only.
 - Outbound requests share one connection pool and go directly from the API
