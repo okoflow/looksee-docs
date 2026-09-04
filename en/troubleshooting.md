@@ -80,25 +80,39 @@ denied prompt.
   are a camera without a Detect node, a Detect node without a model, and an
   action without a credential.
 
+## Video upload fails
+
+Uploading through **Assets** or starting a File camera answers `503` with
+*Video storage is unavailable*. The `storage` service is not healthy, the
+`storage-init` service did not create the bucket, or the `S3_*` variables
+point at an endpoint the API cannot reach. Check
+`docker compose ps storage` and `docker compose logs storage-init`.
+
 ## Alerts are not delivered
 
 - **The Alert action fires but Telegram, Discord, email, MQTT, or Slack stay
   silent.** The credential is missing, of the wrong type, or the service
-  rejected the request. The `api` log records every delivery failure without
-  the secret.
+  rejected the request. `GET /deliveries?status=failed` shows the last
+  error of each failed delivery, and `POST /deliveries/{id}/retry` sends it
+  again; the `api` log records every failure without the secret.
+- **Messages arrive late.** A delivery that failed with a timeout or a
+  server error is retried with a growing delay of up to five minutes; the
+  target was unreachable in the meantime.
 - **Telegram** needs the chat id of a chat the bot is a member of; send the
   bot a message first.
 - **Email** needs a server that accepts the `from_address`; many providers
   require STARTTLS on port 587.
-- **Webhook** targets must answer within five seconds.
+- **Webhook** targets must answer within five seconds; a `5xx`, `408`, or
+  `429` response is retried, any other error is not.
 - **Nothing fires at all.** Check that the event kind selected in Detect is
   one the model produces, and that a filter is not sending everything to
   **Else**.
 
 ## Too many or too few alerts
 
-- The **event cooldown** (`EVENT_COOLDOWN_SECONDS`) drops repeats of the same
-  kind within two seconds by default.
+- Every event reaches the graph; the **event cooldown**
+  (`EVENT_COOLDOWN_SECONDS`) only thins the live feed and does not limit
+  actions.
 - The Alert action's **cooldown** suppresses repeats per camera; `0` records
   everything.
 - A **Debounce** filter gives any branch its own window.
@@ -141,5 +155,6 @@ docker compose exec postgres psql -U looksee -d looksee -c "DELETE FROM users;"
 ## A port is already in use
 
 Change the host port in `.env`: `WEB_PORT`, `API_PORT`, `POSTGRES_PORT`,
-`REDIS_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`, `MTX_WEBRTC_ICE_PORT`. When
+`REDIS_PORT`, `STORAGE_PORT`, `MTX_RTSP_PORT`, `MTX_WEBRTC_PORT`,
+`MTX_WEBRTC_ICE_PORT`. When
 `MTX_WEBRTC_PORT` changes, set `RUNTIME_MEDIAMTX_WEBRTC_URL` to match.

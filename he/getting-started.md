@@ -8,7 +8,7 @@
 
 - Docker Engine עם Docker Compose 2.24 ואילך. Docker Desktop עובד ב-macOS וב-Windows; שרתי Linux הם יעד הייצור המקובל.
 - מעבד x86 או ARM של 64 סיביות. הזיהוי רץ על המעבד (CPU) כברירת מחדל; GPU עם CUDA הוא אופציונלי ומתואר ב[פריסה](deployment.md#הסקה-על-gpu).
-- פורטים פנויים: `3000` (Studio), `8000` (API), `8554` (RTSP), `8889` (WebRTC) ו-`8189/udp` (WebRTC ICE). PostgreSQL, Valkey ו-API הבקרה של MediaMTX מאוגדים לממשק ה-loopback בלבד.
+- פורטים פנויים: `3000` (Studio), `8000` (API), `8554` (RTSP), `8889` (WebRTC) ו-`8189/udp` (WebRTC ICE). PostgreSQL, Valkey, אחסון הווידאו ו-API הבקרה של MediaMTX מאוגדים לממשק ה-loopback בלבד.
 
 קובץ ה-compose מגביל כל שירות. שירות ההסקה (inference) מקבל 4 מעבדים ו-4 GB זיכרון כברירת מחדל; העלו את `INFERENCE_CPUS` ואת `INFERENCE_MEMORY` ב-`.env` עבור יותר מצלמות או מודלים גדולים יותר.
 
@@ -20,12 +20,12 @@ cd looksee
 cp .env.example .env
 ```
 
-פתחו את `.env` והגדירו שני דברים לפני ההפעלה הראשונה:
+פתחו את `.env` והגדירו את הערכים הבאים לפני ההפעלה הראשונה:
 
 | משתנה | ערך |
 | --- | --- |
 | `WEBRTC_HOST_IP` | `127.0.0.1` כאשר הדפדפן רץ על אותה מכונה. כתובת המכונה ברשת שלכם, למשל `192.168.1.20`, כאשר פותחים את Studio ממכשיר אחר. דפדפנים מתחברים לכתובת זו לצפייה בווידאו חי. |
-| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD` | ערכים משלכם. ערכי הדוגמה הם מצייני מיקום, וסיסמת MediaMTX גלויה לדפדפנים שטוענים את Studio. |
+| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD`, `STORAGE_PASSWORD` | ערכים פרטיים משלכם. הם ריקים ב-`.env.example`, והסטאק מסרב לעלות עד שהם מוגדרים. |
 
 לאחר מכן בנו והפעילו את הסטאק:
 
@@ -34,7 +34,7 @@ docker compose up -d --build
 docker compose ps
 ```
 
-הבנייה הראשונה מורידה אימג'ים בסיסיים וחבילות Python ו-Node ונמשכת כמה דקות. `docker compose ps` מציג כל שירות במצב `healthy` כשהסטאק מוכן: `postgres`, `redis`, `mediamtx`, `api`, `inference` ו-`studio`. השירותים החד-פעמיים `api-migrate` ו-`media-cache-init` מסתיימים אחרי שהם משלימים את עבודתם.
+הבנייה הראשונה מורידה אימג'ים בסיסיים וחבילות Python ו-Node ונמשכת כמה דקות. `docker compose ps` מציג כל שירות במצב `healthy` כשהסטאק מוכן: `storage`, `postgres`, `redis`, `mediamtx`, `api`, `inference` ו-`studio`. השירותים החד-פעמיים `storage-init`, `api-migrate` ו-`media-cache-init` מסתיימים אחרי שהם משלימים את עבודתם.
 
 ## יצירת חשבון הבעלים
 
@@ -87,7 +87,7 @@ git pull && docker compose up -d --build               # upgrade
 docker compose down -v                                 # remove everything, including data
 ```
 
-תהליכי עבודה, מצלמות, אישורי גישה, התראות, תמונות מצב וסוד החתימה נשמרים ב-volumes בעלי שם. `down -v` מוחק אותם; [פריסה](deployment.md) מסביר כיצד לגבות אותם.
+תהליכי עבודה, מצלמות, אישורי גישה, התראות, תמונות מצב, סרטונים שהועלו וסוד החתימה נשמרים ב-volumes בעלי שם. `down -v` מוחק אותם; [פריסה](deployment.md) מסביר כיצד לגבות אותם.
 
 ## בשלב הבא
 

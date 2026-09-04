@@ -53,9 +53,12 @@ port `8189/udp` open; see [Networking](#networking).
 
 A **File** camera plays an object from the asset library on a loop, which is
 useful for testing a workflow against a recording. The asset library is an
-S3-compatible bucket configured with the `S3_*` variables; it is built for
-Cloudflare R2 and works with MinIO or any S3 endpoint. Without a configured
-bucket the **Assets** picker and the `/assets` endpoints are disabled.
+S3-compatible bucket. The compose stack bundles one, the `storage` service
+backed by RustFS with the `storage_data` volume, and creates the bucket on
+start; set the `S3_*` variables to use an external endpoint such as
+Cloudflare R2 or MinIO instead. Without a configured bucket the **Assets**
+picker and the `/assets` endpoints are disabled; when the bucket is
+configured but unreachable, they answer `503`.
 
 Files are uploaded through Studio or `POST /assets`. On start the API
 downloads the object into the media cache volume, which MediaMTX reads to
@@ -71,10 +74,12 @@ API on port `9997`; the file itself only sets protocols and authentication:
 - RTSP on `8554` over TCP; WebRTC on `8889` with ICE on `8189/udp`. RTMP,
   HLS, and SRT listeners are off, which does not affect pulling from RTMP or
   SRT upstreams.
-- One user, `MTX_MEDIA_USER` with `MTX_MEDIA_PASSWORD`, may read and publish.
-  The inference service and browsers use it. Studio hands these credentials
-  to the browser for playback, so treat them as access details for a trusted
-  network rather than a backend secret.
+- Authentication is delegated to the API: MediaMTX calls
+  `/internal/media/auth` for every reader, publisher, and control API
+  request. The inference service and the API use the service user,
+  `MTX_MEDIA_USER` with `MTX_MEDIA_PASSWORD`; browsers present a
+  short-lived, camera-scoped grant issued by the API.
+  [Security](security.md#media-access) has the details.
 - The control API is open to loopback and private network ranges without
   authentication; compose binds it to `127.0.0.1`.
 

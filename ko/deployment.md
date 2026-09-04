@@ -92,11 +92,11 @@ docker compose -f compose.yaml -f compose.gpu.yaml up -d --build inference
 - 720p 이하의 카메라 서브스트림을 사용합니다.
 - 시나리오가 더 필요로 하지 않는 한 **Checks per second**를 1~2로 유지합니다.
 
-카메라를 추가할 때마다 `INFERENCE_CPUS`와 `INFERENCE_MEMORY`를 높입니다. API, PostgreSQL, Valkey는 그에 비해 가볍습니다. API 복제본은 하나만 실행합니다. 이벤트 재알림 대기 시간과 추적 상태가 API의 메모리에 있기 때문입니다.
+카메라를 추가할 때마다 `INFERENCE_CPUS`와 `INFERENCE_MEMORY`를 높입니다. API, PostgreSQL, Valkey는 그에 비해 가볍습니다. API 복제본은 하나만 실행합니다. 필터 상태와 재알림 대기 시간이 API의 메모리에 있기 때문입니다.
 
 ## 백업
 
-상태는 백업할 가치가 있는 두 볼륨 `postgres_data`와 `api_keys`에 있으며, 증거 이미지를 보관한다면 `api_snapshots`도 포함됩니다. Compose는 볼륨 이름 앞에 프로젝트 이름을 붙이며, 기본값은 `looksee`입니다.
+상태는 백업할 가치가 있는 세 볼륨 `postgres_data`, `api_keys`, 그리고 업로드한 비디오가 있는 `storage_data`에 있으며, 증거 이미지를 보관한다면 `api_snapshots`도 포함됩니다. Compose는 볼륨 이름 앞에 프로젝트 이름을 붙이며, 기본값은 `looksee`입니다.
 
 ```bash
 # Database
@@ -107,6 +107,10 @@ docker run --rm -v looksee_api_keys:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_keys.tgz -C /data .
 docker run --rm -v looksee_api_snapshots:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_snapshots.tgz -C /data .
+
+# Uploaded videos
+docker run --rm -v looksee_storage_data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/storage_data.tgz -C /data .
 ```
 
 새 스택으로 복원하려면 `postgres`만 먼저 시작하고, `psql`로 덤프를 불러오고, 같은 방식으로 아카이브를 볼륨에 풀어 넣은 뒤, 나머지를 시작합니다. 생성된 파일에 의존하는 대신 `.env`에 `SECRET_KEY`를 설정하면 키가 구성 백업의 일부가 됩니다.
@@ -118,7 +122,7 @@ git pull
 docker compose up -d --build
 ```
 
-`api-migrate` 서비스가 API 시작 전에 데이터베이스 마이그레이션을 적용합니다. API와 추론 서비스는 메시지 계약이 함께 바뀌므로 같은 버전으로 실행해야 합니다. 이후 `docker compose ps`를 확인합니다. 운영자의 조치가 필요한 변경은 [변경 이력](changelog.md)에 나열됩니다.
+`api-migrate` 서비스가 API 시작 전에 데이터베이스 마이그레이션을 적용합니다. API, 추론 서비스, Studio, MediaMTX는 계약이 함께 바뀌므로 같은 버전으로 실행해야 합니다. 먼저 [변경 이력](changelog.md)을 읽으십시오. 릴리스가 `.env`에 필수 변수를 추가할 수 있으며, 그 변수 없이는 compose가 시작을 거부합니다. 이후 `docker compose ps`를 확인합니다.
 
 ## 네이티브 서비스
 

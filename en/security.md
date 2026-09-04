@@ -17,8 +17,11 @@ in the repository, which covers reporting vulnerabilities.
   valid for seven days, and `Secure` when `AUTH_COOKIE_SECURE=true`. Signing
   out deletes the cookie; the token itself stays valid until it expires, so
   treat a leaked cookie as a reason to rotate `SECRET_KEY`.
-- Every API route except `/health`, `/auth/*`, and the interactive
-  documentation requires the cookie.
+- Every API route except `/health`, `/auth/*`, the interactive
+  documentation, and the MediaMTX callback `/internal/media/auth` requires
+  the cookie.
+- Setup and sign-in accept 20 attempts per client address and 100 in total
+  per minute; further attempts get `429` with a `Retry-After` header.
 
 > [!WARNING]
 > Until the owner account exists, the setup endpoint is open to anyone who can
@@ -42,27 +45,37 @@ permissions.
 - Rotating `SECRET_KEY` invalidates sessions and existing credential
   ciphertexts; re-enter credentials afterwards.
 
-## What browsers can see
+## Media access
 
-Studio injects its runtime configuration into every page, including
-`RUNTIME_MEDIAMTX_MEDIA_USER` and `RUNTIME_MEDIAMTX_MEDIA_PASSWORD`, because
-the browser plays live video and publishes webcams directly against
-MediaMTX. Anyone who can load the Studio sign-in page can read these values
-and use them to read or publish any camera path on MediaMTX.
+Live video and webcam publishing go from the browser straight to MediaMTX,
+but MediaMTX holds no credentials of its own: it asks the API to authorize
+every connection through `/internal/media/auth`. Three kinds of callers
+exist:
+
+- Studio requests a grant from `POST /cameras/{camera_id}/media-access`
+  with the session cookie and sends it to MediaMTX as a bearer token. A
+  grant covers one camera and one action, `read` or `publish`, and expires
+  after five minutes; publishing is granted only for Browser webcam cameras.
+- The API and the inference service use the service user, `MTX_MEDIA_USER`
+  with `MTX_MEDIA_PASSWORD`, to manage paths and to read camera streams. The
+  password stays inside the stack and is never sent to a browser.
+- The ffmpeg loop of a File camera publishes over RTSP from the MediaMTX
+  container itself and is accepted from loopback only.
 
 Consequences for a deployment:
 
-- Change `MTX_MEDIA_PASSWORD` from the example value, and treat it as shared
-  with everyone who can reach Studio.
+- Treat `MTX_MEDIA_PASSWORD` as a backend secret: rotate it if it was ever
+  exposed, and do not reuse it anywhere else.
 - Keep MediaMTX ports (`8554`, `8889`, `8189/udp`) reachable only from the
-  networks where cameras and Studio users are.
-- Do not reuse the MediaMTX password anywhere else.
+  networks where cameras and Studio users are; a valid grant is still
+  required, but the ports need not be public.
+- The callback is served on the API port and answers only allow or deny.
 
 ## Network exposure
 
 | Exposed to all interfaces | Loopback only |
 | --- | --- |
-| Studio `3000`, API `8000`, RTSP `8554`, WebRTC `8889` and `8189/udp` | PostgreSQL `5432`, Valkey `6379`, MediaMTX control API `9997` |
+| Studio `3000`, API `8000`, RTSP `8554`, WebRTC `8889` and `8189/udp` | PostgreSQL `5432`, Valkey `6379`, video storage `9000`, MediaMTX control API `9997` |
 
 The MediaMTX control API accepts unauthenticated requests from loopback and
 private address ranges; it is bound to loopback so only the API container
@@ -71,7 +84,9 @@ and the host reach it. Do not publish port `9997`.
 The API's CORS policy allows `localhost` and `127.0.0.1` by default. Set
 `CORS_ORIGIN_REGEX` to exactly the Studio origin in a deployment, and do not
 widen it to every origin: the API accepts credentials with cross-origin
-requests.
+requests. Requests that change state and WebSocket connections whose
+`Origin` header matches neither the pattern nor the API's own origin are
+rejected with `403`.
 
 ## Actions and outbound traffic
 
@@ -87,7 +102,8 @@ volume.
 
 ## Recommended baseline
 
-- Change every example password; set `SECRET_KEY` or back up `api_keys`.
+- Set private `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD`, and
+  `STORAGE_PASSWORD` values; set `SECRET_KEY` or back up `api_keys`.
 - Terminate TLS in a reverse proxy in front of Studio and the API, set
   `AUTH_COOKIE_SECURE=true`, and point the `RUNTIME_*` URLs at the public
   addresses.

@@ -119,12 +119,13 @@ docker compose -f compose.yaml -f compose.gpu.yaml up -d --build inference
 
 Увеличивайте `INFERENCE_CPUS` и `INFERENCE_MEMORY` по мере добавления камер.
 API, PostgreSQL и Valkey по сравнению с этим легки. Запускайте одну реплику
-API: паузы между событиями и состояние трекинга живут в памяти API.
+API: состояние фильтров и паузы живут в памяти API.
 
 ## Резервные копии
 
-Состояние живёт в двух томах, которые стоит резервировать, `postgres_data` и
-`api_keys`, плюс `api_snapshots`, если вы храните изображения-доказательства.
+Состояние живёт в трёх томах, которые стоит резервировать: `postgres_data`,
+`api_keys` и `storage_data` с загруженными видео, плюс `api_snapshots`, если
+вы храните изображения-доказательства.
 Compose добавляет к именам томов префикс с именем проекта, по умолчанию
 `looksee`.
 
@@ -137,6 +138,10 @@ docker run --rm -v looksee_api_keys:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_keys.tgz -C /data .
 docker run --rm -v looksee_api_snapshots:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_snapshots.tgz -C /data .
+
+# Uploaded videos
+docker run --rm -v looksee_storage_data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/storage_data.tgz -C /data .
 ```
 
 Восстановление в свежий стек: запустите только `postgres`, загрузите дамп
@@ -152,11 +157,12 @@ git pull
 docker compose up -d --build
 ```
 
-Сервис `api-migrate` применяет миграции базы данных до запуска API, а API и
-сервис инференса должны работать одной версии, потому что их контракты
-сообщений меняются вместе. После обновления проверьте `docker compose ps`;
-[история изменений](changelog.md) перечисляет изменения, требующие действий
-оператора.
+Сервис `api-migrate` применяет миграции базы данных до запуска API, а API,
+сервис инференса, Studio и MediaMTX должны работать одной версии, потому что
+их контракты меняются вместе. Сначала прочитайте
+[историю изменений](changelog.md): выпуск может добавить обязательную
+переменную в `.env`, без которой compose не запустится. После обновления
+проверьте `docker compose ps`.
 
 ## Нативные сервисы
 

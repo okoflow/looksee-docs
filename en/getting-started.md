@@ -13,8 +13,8 @@ way to run LookSee.
 - A 64-bit x86 or ARM processor. Detection runs on the CPU by default; a
   CUDA GPU is optional and covered in [Deployment](deployment.md#gpu-inference).
 - Free ports `3000` (Studio), `8000` (API), `8554` (RTSP), `8889` (WebRTC),
-  and `8189/udp` (WebRTC ICE). PostgreSQL, Valkey, and the MediaMTX control
-  API bind to the loopback interface only.
+  and `8189/udp` (WebRTC ICE). PostgreSQL, Valkey, the video storage, and
+  the MediaMTX control API bind to the loopback interface only.
 
 The compose file limits every service. The inference service gets 4 CPUs and
 4 GB of memory by default; raise `INFERENCE_CPUS` and `INFERENCE_MEMORY` in
@@ -28,12 +28,12 @@ cd looksee
 cp .env.example .env
 ```
 
-Open `.env` and set two things before the first start:
+Open `.env` and set these values before the first start:
 
 | Variable | Set it to |
 | --- | --- |
 | `WEBRTC_HOST_IP` | `127.0.0.1` when the browser runs on the same machine. The machine's address on your network, such as `192.168.1.20`, when you open Studio from another device. Browsers connect to this address for live video. |
-| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD` | Your own values. The example values are placeholders, and the MediaMTX password is visible to browsers that load Studio. |
+| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD`, `STORAGE_PASSWORD` | Private values of your own. They are blank in `.env.example`, and the stack refuses to start until they are set. |
 
 Then build and start the stack:
 
@@ -44,9 +44,9 @@ docker compose ps
 
 The first build downloads base images and Python and Node packages and takes
 a few minutes. `docker compose ps` shows every service as `healthy` once the
-stack is ready: `postgres`, `redis`, `mediamtx`, `api`, `inference`, and
-`studio`. The one-shot `api-migrate` and `media-cache-init` services exit
-after they finish.
+stack is ready: `storage`, `postgres`, `redis`, `mediamtx`, `api`,
+`inference`, and `studio`. The one-shot `storage-init`, `api-migrate`, and
+`media-cache-init` services exit after they finish.
 
 ## Create the owner account
 
@@ -111,8 +111,8 @@ git pull && docker compose up -d --build               # upgrade
 docker compose down -v                                 # remove everything, including data
 ```
 
-Workflows, cameras, credentials, alerts, snapshots, and the signing secret
-live in named volumes. `down -v` deletes them; [Deployment](deployment.md)
+Workflows, cameras, credentials, alerts, snapshots, uploaded videos, and the
+signing secret live in named volumes. `down -v` deletes them; [Deployment](deployment.md)
 explains how to back them up.
 
 ## Next

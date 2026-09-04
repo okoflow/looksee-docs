@@ -9,7 +9,8 @@
 - 계정은 하나만 존재합니다. 첫 시작 후 초기 설정 페이지에서 만드는 소유자입니다. 자체 가입이나 사용자 관리는 없습니다.
 - 비밀번호는 Argon2로 해시됩니다. 초기 설정 양식은 숫자 하나와 대문자 하나를 포함한 8자 이상을 요구합니다.
 - 로그인하면 `looksee_session` 쿠키가 설정됩니다. `HttpOnly`, `SameSite=Lax`, 7일간 유효하며, `AUTH_COOKIE_SECURE=true`이면 `Secure`입니다. 로그아웃은 쿠키를 삭제하지만 토큰 자체는 만료될 때까지 유효하므로, 쿠키가 유출되었다면 `SECRET_KEY`를 교체해야 합니다.
-- `/health`, `/auth/*`, 대화형 문서를 제외한 모든 API 경로는 쿠키를 요구합니다.
+- `/health`, `/auth/*`, 대화형 문서, MediaMTX 콜백 `/internal/media/auth`를 제외한 모든 API 경로는 쿠키를 요구합니다.
+- 초기 설정과 로그인은 클라이언트 주소당 분당 20회, 전체 분당 100회의 시도를 허용합니다. 그 이상은 `Retry-After` 헤더와 함께 `429`를 받습니다.
 
 > [!WARNING]
 > 소유자 계정이 생기기 전까지 초기 설정 엔드포인트는 Studio나 API에 접근할 수 있는 누구에게나 열려 있습니다. 첫 시작 직후 소유자를 만들거나, 포트를 방화벽으로 막은 상태로 스택을 시작한 뒤 나중에 여십시오.
@@ -22,25 +23,29 @@ API는 하나의 루트 시크릿에서 두 키를 파생합니다. 세션 토�
 - 자격 증명 페이로드(봇 토큰, 웹훅 URL, SMTP와 MQTT 비밀번호)는 저장 시 암호화되며 API가 결코 반환하지 않습니다. 목록에는 이름과 비밀이 아닌 요약만 표시됩니다. 액션이 전달할 때만 해독됩니다.
 - `SECRET_KEY`를 교체하면 세션과 기존 자격 증명 암호문이 무효화됩니다. 이후 자격 증명을 다시 입력하십시오.
 
-## 브라우저에 노출되는 정보
+## 미디어 접근
 
-Studio는 런타임 구성을 모든 페이지에 삽입하며, 여기에는 `RUNTIME_MEDIAMTX_MEDIA_USER`와 `RUNTIME_MEDIAMTX_MEDIA_PASSWORD`가 포함됩니다. 브라우저가 MediaMTX에 직접 접속해 실시간 영상을 재생하고 웹캠을 송출하기 때문입니다. Studio 로그인 페이지를 불러올 수 있는 누구나 이 값을 읽어 MediaMTX의 어떤 카메라 경로든 읽거나 송출할 수 있습니다.
+실시간 영상과 웹캠 송출은 브라우저에서 MediaMTX로 직접 흐르지만, MediaMTX는 자체 자격 증명을 갖지 않습니다. 모든 연결에 대해 `/internal/media/auth`를 통해 API에 허가를 묻습니다. 연결하는 주체는 세 종류입니다.
+
+- Studio는 세션 쿠키로 `POST /cameras/{camera_id}/media-access`에서 그랜트를 받아 MediaMTX에 bearer 토큰으로 보냅니다. 그랜트는 카메라 하나와 액션 하나(`read` 또는 `publish`)에만 적용되고 5분 뒤 만료됩니다. 송출은 Browser webcam 카메라에만 허가됩니다.
+- API와 추론 서비스는 서비스 사용자 `MTX_MEDIA_USER`와 `MTX_MEDIA_PASSWORD`로 경로를 관리하고 카메라 스트림을 읽습니다. 이 비밀번호는 스택 안에만 머물며 브라우저로 전송되지 않습니다.
+- File 카메라의 ffmpeg 루프는 MediaMTX 컨테이너 자체에서 RTSP로 송출하며 루프백에서만 허용됩니다.
 
 배포에 미치는 영향:
 
-- `MTX_MEDIA_PASSWORD`를 예제 값에서 바꾸고, Studio에 접근할 수 있는 모든 사람과 공유되는 값으로 취급합니다.
-- MediaMTX 포트(`8554`, `8889`, `8189/udp`)는 카메라와 Studio 사용자가 있는 네트워크에서만 접근할 수 있게 유지합니다.
-- MediaMTX 비밀번호를 다른 곳에서 재사용하지 않습니다.
+- `MTX_MEDIA_PASSWORD`를 백엔드 시크릿으로 취급합니다. 노출된 적이 있다면 교체하고, 다른 곳에서 재사용하지 않습니다.
+- MediaMTX 포트(`8554`, `8889`, `8189/udp`)는 카메라와 Studio 사용자가 있는 네트워크에서만 접근할 수 있게 유지합니다. 유효한 그랜트가 여전히 필요하지만, 포트를 공개할 이유는 없습니다.
+- 콜백은 API 포트에서 제공되며 허용 여부만 응답합니다.
 
 ## 네트워크 노출
 
 | 모든 인터페이스에 노출 | 루프백 전용 |
 | --- | --- |
-| Studio `3000`, API `8000`, RTSP `8554`, WebRTC `8889`와 `8189/udp` | PostgreSQL `5432`, Valkey `6379`, MediaMTX 제어 API `9997` |
+| Studio `3000`, API `8000`, RTSP `8554`, WebRTC `8889`와 `8189/udp` | PostgreSQL `5432`, Valkey `6379`, 비디오 저장소 `9000`, MediaMTX 제어 API `9997` |
 
 MediaMTX 제어 API는 루프백과 사설 주소 범위에서 오는 인증 없는 요청을 받아들입니다. 루프백에 바인딩되어 있어 API 컨테이너와 호스트만 접근합니다. 포트 `9997`을 외부에 공개하지 마십시오.
 
-API의 CORS 정책은 기본적으로 `localhost`와 `127.0.0.1`을 허용합니다. 배포에서는 `CORS_ORIGIN_REGEX`를 정확히 Studio 오리진으로 설정하고, 모든 오리진으로 넓히지 마십시오. API는 교차 오리진 요청에서도 자격 증명을 받아들입니다.
+API의 CORS 정책은 기본적으로 `localhost`와 `127.0.0.1`을 허용합니다. 배포에서는 `CORS_ORIGIN_REGEX`를 정확히 Studio 오리진으로 설정하고, 모든 오리진으로 넓히지 마십시오. API는 교차 오리진 요청에서도 자격 증명을 받아들입니다. 상태를 바꾸는 요청과 WebSocket 연결의 `Origin` 헤더가 패턴에도, API 자신의 오리진에도 맞지 않으면 `403`으로 거부됩니다.
 
 ## 액션과 외부 트래픽
 
@@ -50,7 +55,7 @@ Webhook, Telegram, Discord, Slack, MQTT, Email 액션은 워크플로나 자격 
 
 ## 권장 기준선
 
-- 모든 예제 비밀번호를 바꿉니다. `SECRET_KEY`를 설정하거나 `api_keys`를 백업합니다.
+- `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD`, `STORAGE_PASSWORD`에 직접 정한 값을 설정합니다. `SECRET_KEY`를 설정하거나 `api_keys`를 백업합니다.
 - Studio와 API 앞의 리버스 프록시에서 TLS를 종단하고, `AUTH_COOKIE_SECURE=true`를 설정하고, `RUNTIME_*` URL을 공개 주소로 향하게 합니다.
 - `CORS_ORIGIN_REGEX`를 Studio 오리진으로 제한합니다.
 - MediaMTX 포트를 카메라와 사용자 네트워크로 방화벽 제한합니다.

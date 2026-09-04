@@ -92,11 +92,11 @@ docker compose -f compose.yaml -f compose.gpu.yaml up -d --build inference
 - השתמשו בזרמי המשנה של המצלמות ב-720p או פחות.
 - השאירו את **Checks per second** על 1 עד 2, אלא אם התרחיש דורש יותר.
 
-העלו את `INFERENCE_CPUS` ואת `INFERENCE_MEMORY` ככל שמתווספות מצלמות. ה-API, PostgreSQL ו-Valkey קלים בהשוואה. הריצו עותק API אחד: זמני הצינון של אירועים ומצב המעקב חיים בזיכרון של ה-API.
+העלו את `INFERENCE_CPUS` ואת `INFERENCE_MEMORY` ככל שמתווספות מצלמות. ה-API, PostgreSQL ו-Valkey קלים בהשוואה. הריצו עותק API אחד: מצב המסננים וזמני הצינון חיים בזיכרון של ה-API.
 
 ## גיבויים
 
-המצב נשמר בשני volumes שכדאי לגבות, `postgres_data` ו-`api_keys`, ובנוסף `api_snapshots` אם אתם שומרים תמונות ראיה. Compose מוסיף לשמות ה-volumes קידומת של שם הפרויקט, `looksee` כברירת מחדל.
+המצב נשמר בשלושה volumes שכדאי לגבות: `postgres_data`, `api_keys` ו-`storage_data` עם הסרטונים שהועלו, ובנוסף `api_snapshots` אם אתם שומרים תמונות ראיה. Compose מוסיף לשמות ה-volumes קידומת של שם הפרויקט, `looksee` כברירת מחדל.
 
 ```bash
 # Database
@@ -107,6 +107,10 @@ docker run --rm -v looksee_api_keys:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_keys.tgz -C /data .
 docker run --rm -v looksee_api_snapshots:/data -v "$PWD":/backup alpine \
   tar czf /backup/api_snapshots.tgz -C /data .
+
+# Uploaded videos
+docker run --rm -v looksee_storage_data:/data -v "$PWD":/backup alpine \
+  tar czf /backup/storage_data.tgz -C /data .
 ```
 
 שחזרו לסטאק נקי בהפעלת `postgres` לבדו, טעינת ה-dump באמצעות `psql`, חילוץ הארכיונים אל ה-volumes באותה דרך, ואז הפעלת השאר. הגדרת `SECRET_KEY` ב-`.env` במקום להסתמך על הקובץ שנוצר הופכת את המפתח לחלק מגיבוי התצורה שלכם.
@@ -118,7 +122,7 @@ git pull
 docker compose up -d --build
 ```
 
-השירות `api-migrate` מחיל מיגרציות של מסד הנתונים לפני שה-API מופעל, וה-API ושירות ההסקה חייבים לרוץ באותה גרסה מכיוון שחוזי ההודעות שלהם משתנים יחד. בדקו את `docker compose ps` לאחר מכן; [יומן השינויים](changelog.md) מפרט שינויים שדורשים פעולה מצד המפעיל.
+השירות `api-migrate` מחיל מיגרציות של מסד הנתונים לפני שה-API מופעל, וה-API, שירות ההסקה, Studio ו-MediaMTX חייבים לרוץ באותה גרסה מכיוון שהחוזים שלהם משתנים יחד. קראו קודם את [יומן השינויים](changelog.md): גרסה עשויה להוסיף משתנה נדרש ל-`.env`, שבלעדיו compose מסרב לעלות. בדקו את `docker compose ps` לאחר מכן.
 
 ## שירותים מקומיים
 
