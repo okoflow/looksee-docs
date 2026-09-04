@@ -8,7 +8,7 @@
 
 - Docker Compose 2.24 이상이 포함된 Docker Engine. macOS와 Windows에서는 Docker Desktop이 동작하며, 운영 환경은 보통 Linux 서버입니다.
 - 64비트 x86 또는 ARM 프로세서. 탐지는 기본적으로 CPU에서 실행됩니다. CUDA GPU는 선택 사항이며 [배포](deployment.md#gpu-추론)에서 다룹니다.
-- 사용 가능한 포트 `3000`(Studio), `8000`(API), `8554`(RTSP), `8889`(WebRTC), `8189/udp`(WebRTC ICE). PostgreSQL, Valkey, MediaMTX 제어 API는 루프백 인터페이스에만 바인딩됩니다.
+- 사용 가능한 포트 `3000`(Studio), `8000`(API), `8554`(RTSP), `8889`(WebRTC), `8189/udp`(WebRTC ICE). PostgreSQL, Valkey, 비디오 저장소, MediaMTX 제어 API는 루프백 인터페이스에만 바인딩됩니다.
 
 compose 파일은 모든 서비스에 리소스 제한을 둡니다. 추론 서비스는 기본적으로 CPU 4개와 메모리 4 GB를 받습니다. 카메라를 더 연결하거나 더 큰 모델을 쓰려면 `.env`에서 `INFERENCE_CPUS`와 `INFERENCE_MEMORY`를 높입니다.
 
@@ -20,12 +20,12 @@ cd looksee
 cp .env.example .env
 ```
 
-첫 시작 전에 `.env`를 열어 두 가지를 설정합니다.
+첫 시작 전에 `.env`를 열어 다음 값을 설정합니다.
 
 | 변수 | 설정값 |
 | --- | --- |
 | `WEBRTC_HOST_IP` | 브라우저가 같은 머신에서 실행되면 `127.0.0.1`. 다른 기기에서 Studio를 열려면 `192.168.1.20`처럼 네트워크에서 이 머신에 접근하는 주소. 브라우저는 실시간 영상을 위해 이 주소에 연결합니다. |
-| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD` | 직접 정한 값. 예제 값은 자리 표시자이며, MediaMTX 비밀번호는 Studio를 불러오는 브라우저에 노출됩니다. |
+| `POSTGRES_PASSWORD`, `MTX_MEDIA_PASSWORD`, `STORAGE_PASSWORD` | 직접 정한 비공개 값. `.env.example`에는 비어 있으며, 설정하기 전까지 스택은 시작을 거부합니다. |
 
 그런 다음 스택을 빌드하고 시작합니다.
 
@@ -34,7 +34,7 @@ docker compose up -d --build
 docker compose ps
 ```
 
-첫 빌드는 베이스 이미지와 Python, Node 패키지를 내려받느라 몇 분이 걸립니다. 스택이 준비되면 `docker compose ps`가 `postgres`, `redis`, `mediamtx`, `api`, `inference`, `studio` 서비스를 모두 `healthy`로 표시합니다. 일회성 서비스인 `api-migrate`와 `media-cache-init`는 작업을 마치면 종료됩니다.
+첫 빌드는 베이스 이미지와 Python, Node 패키지를 내려받느라 몇 분이 걸립니다. 스택이 준비되면 `docker compose ps`가 `storage`, `postgres`, `redis`, `mediamtx`, `api`, `inference`, `studio` 서비스를 모두 `healthy`로 표시합니다. 일회성 서비스인 `storage-init`, `api-migrate`, `media-cache-init`는 작업을 마치면 종료됩니다.
 
 ## 소유자 계정 만들기
 
@@ -87,7 +87,7 @@ git pull && docker compose up -d --build               # upgrade
 docker compose down -v                                 # remove everything, including data
 ```
 
-워크플로, 카메라, 자격 증명, 알림, 스냅샷, 서명 시크릿은 명명된 볼륨에 저장됩니다. `down -v`는 이들을 삭제합니다. 백업 방법은 [배포](deployment.md)에서 설명합니다.
+워크플로, 카메라, 자격 증명, 알림, 스냅샷, 업로드한 비디오, 서명 시크릿은 명명된 볼륨에 저장됩니다. `down -v`는 이들을 삭제합니다. 백업 방법은 [배포](deployment.md)에서 설명합니다.
 
 ## 다음 단계
 
