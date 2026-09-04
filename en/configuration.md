@@ -3,9 +3,10 @@
 # Configuration
 
 LookSee is configured through environment variables. With Docker Compose they
-come from `.env` next to `compose.yaml`; `.env.example` lists every variable
-with its default. Services read their variables at start, so a change takes
-effect after `docker compose up -d`.
+come from `.env` next to `compose.yaml`; `.env.example` lists the variables
+an installation sets, grouped by service, and the tables below cover the
+rest with their defaults. Services read their variables at start, so a
+change takes effect after `docker compose up -d`.
 
 ## Compose stack
 
@@ -16,8 +17,10 @@ resource limits.
 | --- | --- | --- |
 | `WEBRTC_HOST_IP` | required | Address browsers use to reach MediaMTX for live video: `127.0.0.1` on one machine, the LAN address on a server. Also the default host in the `RUNTIME_*` URLs. |
 | `POSTGRES_PASSWORD` | required | Database password. |
-| `MTX_MEDIA_PASSWORD` | required | Password of the MediaMTX media user. Visible to browsers that load Studio. |
-| `MTX_MEDIA_USER` | `media` | MediaMTX user with read and publish rights. |
+| `MTX_MEDIA_PASSWORD` | required | Password of the MediaMTX service user, shared by the API, the inference service, and MediaMTX. Never sent to browsers. |
+| `MTX_MEDIA_USER` | `media` | MediaMTX service user with read and publish rights. |
+| `STORAGE_PASSWORD` | required | Secret key of the bundled video storage; the access key is `looksee`. |
+| `STORAGE_PORT` | `9000` | Host port for the storage's S3 API, bound to `127.0.0.1`. |
 | `POSTGRES_USER`, `POSTGRES_DB` | `looksee` | Database user and name. |
 | `POSTGRES_PORT` | `5432` | Host port for PostgreSQL, bound to `127.0.0.1`. |
 | `REDIS_PORT` | `6379` | Host port for Valkey, bound to `127.0.0.1`. |
@@ -26,6 +29,7 @@ resource limits.
 | `MTX_WEBRTC_PORT` | `8889` | WebRTC signalling and playback port. |
 | `MTX_WEBRTC_ICE_PORT` | `8189` | WebRTC media port (UDP). |
 | `MTX_LOGLEVEL` | `info` | MediaMTX log level. |
+| `MTX_AUTHHTTPADDRESS` | `http://api:8000/internal/media/auth` | Where MediaMTX asks for authorization. Change it only when the API runs outside compose. |
 | `API_PORT` | `8000` | Host port for the API. |
 | `WEB_PORT` | `3000` | Host port for Studio. |
 | `INFERENCE_CPUS` | `4.0` | CPU limit of the inference container; also caps ONNX Runtime threads. |
@@ -33,8 +37,8 @@ resource limits.
 | `REGISTRY`, `TAG` | `looksee`, `latest` | Image name prefix and tag for the three application images. |
 
 Other services are limited too: `api` 2 CPUs and 1 GB, `postgres` 2 CPUs and
-2 GB, `mediamtx` 2 CPUs and 1 GB, `redis` 1 CPU and 768 MB, `studio` 1 CPU
-and 512 MB. Edit `compose.yaml` or add an override file to change them.
+2 GB, `mediamtx` 2 CPUs and 1 GB, `storage` 2 CPUs and 1 GB, `redis` 1 CPU
+and 768 MB, `studio` 1 CPU and 512 MB. Edit `compose.yaml` or add an override file to change them.
 
 ## API
 
@@ -49,14 +53,14 @@ and 512 MB. Edit `compose.yaml` or add an override file to change them.
 | `SECRET_KEY` | unset | Root secret for session signing and credential encryption. Unset, a secret is generated on first start and stored in `SECRET_KEY_FILE`. |
 | `SECRET_KEY_FILE` | `/data/keys/secret.key` | Location of the generated secret, on the `api_keys` volume. |
 | `AUTH_COOKIE_SECURE` | `false` | Mark the session cookie `Secure`. Set to `true` behind HTTPS. |
-| `CORS_ORIGIN_REGEX` | `^https?://(localhost\|127\.0\.0\.1)(:\d+)?$` | Origins allowed to call the API from a browser. Set it to the Studio origin when it is not localhost. |
-| `EVENT_COOLDOWN_SECONDS` | `2` | Minimum gap between two events of the same kind on the same camera. `0` disables the cooldown. |
+| `CORS_ORIGIN_REGEX` | `^https?://(localhost\|127\.0\.0\.1)(:\d+)?$` | Origins allowed to call the API from a browser. Requests that change state and WebSocket connections from other origins are rejected. Set it to the Studio origin when it is not localhost. |
+| `EVENT_COOLDOWN_SECONDS` | `2` | Minimum gap between two `event` messages of the same kind on the same camera in the live feed. `0` disables the cooldown. The graph receives every event. |
 | `EVENT_TIMEZONE` | `UTC` | Time zone for the Schedule filter, an IANA name such as `Europe/Berlin`. |
 | `RECONCILE_INTERVAL_SECONDS` | `30` | How often the API republishes the desired camera state and retries failed cameras. |
 | `CONSUMER_GROUP` | `api-workers` | Valkey stream consumer group for detection frames. |
-| `S3_ENDPOINT_URL`, `S3_BUCKET` | empty | Asset library for File cameras. Both must be set to enable it. |
-| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | empty | Asset library credentials. |
-| `S3_REGION` | `auto` | Region; `auto` for Cloudflare R2. |
+| `S3_ENDPOINT_URL`, `S3_BUCKET` | `http://storage:9000`, `looksee` | Asset library for File cameras. Compose points them at the bundled storage; set both to use an external S3-compatible bucket. Natively, both must be set to enable the library. |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | `looksee`, `STORAGE_PASSWORD` | Asset library credentials. |
+| `S3_REGION` | `auto` | Region of an external bucket; `auto` for Cloudflare R2. |
 | `S3_PREFIX` | empty | Key prefix inside the bucket. |
 | `MEDIA_CACHE_DIR` | set by compose | Where downloaded assets are cached for playback. |
 | `MEDIA_MOUNT_DIR` | `/media` | Where MediaMTX sees the same cache. |
@@ -83,8 +87,7 @@ public part to the browser, so an image can be repointed without a rebuild.
 | `RUNTIME_API_URL` | `http://<WEBRTC_HOST_IP>:<API_PORT>` | API base URL as seen from the browser. |
 | `RUNTIME_WS_URL` | `ws://<WEBRTC_HOST_IP>:<API_PORT>` | WebSocket base URL as seen from the browser. |
 | `RUNTIME_MEDIAMTX_WEBRTC_URL` | `http://<WEBRTC_HOST_IP>:<MTX_WEBRTC_PORT>` | MediaMTX WebRTC URL as seen from the browser. |
-| `RUNTIME_MEDIAMTX_MEDIA_USER`, `RUNTIME_MEDIAMTX_MEDIA_PASSWORD` | the MediaMTX media user | Sent to the browser for playback and webcam publishing. |
-| `RUNTIME_DOCS_URL` | `http://<WEBRTC_HOST_IP>:3002/docs` | Target of the **Documentation** link in the sidebar. |
+| `RUNTIME_DOCS_URL` | `https://github.com/okoflow/looksee-docs` | Target of the **Documentation** link in the sidebar; compose pins it to the documentation repository. |
 | `RUNTIME_GITHUB_URL` | `https://github.com/okoflow/looksee` | Target of the **GitHub** link. |
 | `SERVER_API_URL` | `http://api:8000` | API address used by the Studio server itself for the sign-in guard. Never sent to the browser. |
 
@@ -101,6 +104,7 @@ addresses; [Deployment](deployment.md) has an example.
 | `8889` | mediamtx | all interfaces | WebRTC signalling and playback |
 | `8189/udp` | mediamtx | all interfaces | WebRTC media |
 | `9997` | mediamtx | `127.0.0.1` | MediaMTX control API |
+| `9000` | storage | `127.0.0.1` | S3 API of the video storage |
 | `5432` | postgres | `127.0.0.1` | PostgreSQL |
 | `6379` | redis | `127.0.0.1` | Valkey |
 
@@ -108,13 +112,14 @@ addresses; [Deployment](deployment.md) has an example.
 
 | Volume | Service | Contents |
 | --- | --- | --- |
-| `postgres_data` | postgres | Workflows, cameras, credentials, alerts, users |
+| `postgres_data` | postgres | Workflows, cameras, credentials, alerts, users, queued deliveries |
+| `storage_data` | storage | Uploaded video files for File cameras |
 | `redis_data` | redis | Detection stream and command channels; safe to lose |
 | `api_snapshots` | api | Snapshot JPEG files |
 | `api_keys` | api | The generated `secret.key` |
 | `media-cache` | api, mediamtx | Cached video files for File cameras |
 | `./models` (bind) | api, inference | Model bundles, read-only |
 
-`postgres_data` and `api_keys` hold the state worth backing up; without the
-secret, stored credentials cannot be decrypted and every session is signed
-out. [Deployment](deployment.md#backups) describes a backup routine.
+`postgres_data`, `api_keys`, and `storage_data` hold the state worth backing
+up; without the secret, stored credentials cannot be decrypted and every
+session is signed out. [Deployment](deployment.md#backups) describes a backup routine.
