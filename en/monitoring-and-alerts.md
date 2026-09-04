@@ -30,11 +30,12 @@ monitor of a running workflow starts publishing automatically.
 
 ## Event feed
 
-The **Live** tab lists the events that passed the event cooldown, newest
-first, with the time, the event kind, and the labels behind it. It keeps the
-last thirty entries; **Clear** empties it. The feed reflects what enters the
-graph, before filters, so it is the place to check whether a model produces
-the events you expect.
+The **Live** tab lists the events the graph receives, newest first, with the
+time, the event kind, and the labels behind it; repeats of one kind on one
+camera within `EVENT_COOLDOWN_SECONDS` appear once. It keeps the last thirty
+entries; **Clear** empties it. The feed reflects what enters the graph,
+before filters, so it is the place to check whether a model produces the
+events you expect.
 
 ## Alerts
 
@@ -67,6 +68,22 @@ attach the image itself.
 A snapshot reflects the most recent frame the inference service stored,
 which is at most `LAST_FRAME_TTL_SECONDS` old; if a camera stopped
 producing frames, the action logs a warning and skips.
+
+## Deliveries
+
+Webhook, Telegram, Discord, Slack, Email, and MQTT messages are not sent
+from the frame that produced them. Each is stored in PostgreSQL as a
+delivery and sent by a worker in the API, which retries transient failures
+(timeouts, HTTP `408`, `429`, and `5xx`) with a delay that doubles after
+each attempt, up to five minutes, for at most eight attempts. A rejected
+request, a missing credential, or a snapshot that no longer exists fails
+the delivery at once. Deliveries survive an API restart; a message is
+delivered at least once, and webhooks carry the delivery id in an
+`Idempotency-Key` header.
+
+Studio does not show deliveries. `GET /deliveries?status=failed` lists
+recent failures with their last error, and `POST /deliveries/{id}/retry`
+queues one again; see [API](api.md#deliveries).
 
 ## Realtime access
 
