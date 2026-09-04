@@ -26,7 +26,7 @@ LookSee는 자체 호스팅 영상 분석 시스템입니다. 라이브 스트�
 
 - [구성](configuration.md) — 모든 환경 변수, 포트, 볼륨.
 - [배포](deployment.md) — 네트워크 내 서버, TLS, GPU, 백업, 업그레이드.
-- [보안](security.md) — 계정, 세션, 시크릿, 브라우저에 노출되는 정보.
+- [보안](security.md) — 계정, 세션, 시크릿, 미디어 접근.
 - [문제 해결](troubleshooting.md) — Pending 상태에 머무는 카메라, 영상 없음, 모델 누락, 전달되지 않는 알림.
 
 ## 참조

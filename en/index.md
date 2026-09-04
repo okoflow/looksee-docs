@@ -42,8 +42,8 @@ counting, and Slack.
   volume.
 - [Deployment](deployment.md) — a server on your network, TLS, GPUs, backups,
   and upgrades.
-- [Security](security.md) — accounts, sessions, secrets, and what browsers can
-  see.
+- [Security](security.md) — accounts, sessions, secrets, and media
+  access.
 - [Troubleshooting](troubleshooting.md) — cameras stuck in pending, no video,
   missing models, undelivered alerts.
 
