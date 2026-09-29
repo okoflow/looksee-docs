@@ -10,8 +10,8 @@ proxy, GPU inference, backups, and upgrades.
 
 Set `WEBRTC_HOST_IP` in `.env` to the address users reach the server by,
 such as `192.168.1.20`. Browsers connect to that address for live video, and
-the default `RUNTIME_*` URLs point Studio at it. Change the example
-passwords, then start the stack:
+the default `RUNTIME_*` URLs point Studio at it. Set the passwords that
+[Getting started](getting-started.md#install) lists, then start the stack:
 
 ```bash
 docker compose up -d --build
