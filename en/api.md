@@ -2,18 +2,11 @@
 
 # API
 
-The API is a FastAPI service on port `8000`. Studio is its only built-in
-client, and everything Studio does is available to scripts and integrations.
-Interactive documentation with request and response schemas is served at
-`/docs`, and the OpenAPI document at `/openapi.json`.
+The API is a FastAPI service on port `8000`. Studio is its only built-in client, and everything Studio does is available to scripts and integrations. Interactive documentation with request and response schemas is served at `/docs`, and the OpenAPI document at `/openapi.json`.
 
 ## Authentication
 
-All endpoints except `/health`, `/auth/*`, `/docs`, `/openapi.json`, and
-the MediaMTX callback `/internal/media/auth` require the `looksee_session`
-cookie. Obtain it by signing in and reuse it for seven days; `/auth/login`
-and `/auth/setup` accept 20 attempts per client and 100 in total per
-minute, then answer `429`:
+All endpoints except `/health`, `/auth/*`, `/docs`, `/openapi.json`, and the MediaMTX callback `/internal/media/auth` require the `looksee_session` cookie. Obtain it by signing in and reuse it for seven days; `/auth/login` and `/auth/setup` accept 20 attempts per client and 100 in total per minute, then answer `429`:
 
 ```bash
 curl -c cookies.txt -H 'content-type: application/json' \
@@ -25,9 +18,7 @@ curl -b cookies.txt http://127.0.0.1:8000/workflows
 
 ## Errors
 
-Errors return JSON with a `detail` message. Workflow graph errors add a
-stable `code` and the `node_id` of the offending node so a client can focus
-it:
+Errors return JSON with a `detail` message. Workflow graph errors add a stable `code` and the `node_id` of the offending node so a client can focus it:
 
 ```json
 { "detail": "camera 'camera' reaches no detect node", "code": "detect_node_missing", "node_id": "camera" }
@@ -83,11 +74,7 @@ it:
 | `PATCH /workflows/{id}` | Partial update of `name`, `description`, `enabled`, `graph`. Setting `enabled` to `true` validates the graph and starts the cameras. |
 | `DELETE /workflows/{id}` | Stop and delete; returns `204` |
 
-A graph is `{"nodes": [...], "edges": [...], "comments": [...]}`. Each node
-has an `id`, a `position` with `x` and `y`, and `data` whose `kind` selects
-the node type and whose other fields are listed in [Nodes](nodes.md). Each
-edge has an `id`, `source`, `target`, and an optional `branch` of `if` or
-`else` for edges leaving a filter.
+A graph is `{"nodes": [...], "edges": [...], "comments": [...]}`. Each node has an `id`, a `position` with `x` and `y`, and `data` whose `kind` selects the node type and whose other fields are listed in [Nodes](nodes.md). Each edge has an `id`, `source`, `target`, and an optional `branch` of `if` or `else` for edges leaving a filter.
 
 ```json
 {
@@ -114,9 +101,7 @@ edge has an `id`, `source`, `target`, and an optional `branch` of `if` or
 | `DELETE /alerts/{id}` | Delete one alert |
 | `DELETE /alerts` | Delete alerts, optionally scoped by `camera_id` or `workflow_id` |
 
-An alert has `id`, `workflow_id`, `camera_id`, `kind`, `severity`,
-`message`, `payload` (timestamp, detections, metadata, `snapshot_url` when a
-Snapshot ran before the Alert), and `created_at`.
+An alert has `id`, `workflow_id`, `camera_id`, `kind`, `severity`, `message`, `payload` (timestamp, detections, metadata, `snapshot_url` when a Snapshot ran before the Alert), and `created_at`.
 
 ### Credentials
 
@@ -129,9 +114,7 @@ Snapshot ran before the Alert), and `created_at`.
 
 ### Deliveries
 
-Webhook, Telegram, Discord, Slack, Email, and MQTT messages queued by the
-graph; [Monitoring and alerts](monitoring-and-alerts.md#deliveries) explains
-the retry policy.
+Webhook, Telegram, Discord, Slack, Email, and MQTT messages queued by the graph; [Monitoring and alerts](monitoring-and-alerts.md#deliveries) explains the retry policy.
 
 | Method and path | Description |
 | --- | --- |
@@ -140,8 +123,7 @@ the retry policy.
 
 ### Assets
 
-Available when the asset library is configured, which the compose stack does
-by default; every call returns `503` while the storage is unreachable.
+Available when the asset library is configured, which the compose stack does by default; every call returns `503` while the storage is unreachable.
 
 | Method and path | Description |
 | --- | --- |
@@ -152,14 +134,11 @@ by default; every call returns `503` while the storage is unreachable.
 
 ### Snapshots
 
-`GET /snapshots/<file>.jpg` serves images written by the Snapshot action. The
-request needs the session cookie.
+`GET /snapshots/<file>.jpg` serves images written by the Snapshot action. The request needs the session cookie.
 
 ## WebSocket
 
-`ws://<host>:8000/ws/cameras/{camera_id}` streams live messages for one
-camera to a client that presents the session cookie. The socket is one-way;
-inbound frames are ignored. Every message is JSON with a `type`:
+`ws://<host>:8000/ws/cameras/{camera_id}` streams live messages for one camera to a client that presents the session cookie. The socket is one-way; inbound frames are ignored. Every message is JSON with a `type`:
 
 | Type | Fields | When |
 | --- | --- | --- |
@@ -168,8 +147,7 @@ inbound frames are ignored. Every message is JSON with a `type`:
 | `worker` | `status`, `ts`, `reason` | The camera changes status |
 | `alert` | `id`, `kind`, `severity`, `message`, `ts`, `snapshot_url` | An Alert action fires |
 
-A detection has `label`, `bounding_box` as `[x_min, y_min, x_max, y_max]` in
-frame pixels, `confidence`, `class_id`, and `tracker_id` (or `null`).
+A detection has `label`, `bounding_box` as `[x_min, y_min, x_max, y_max]` in frame pixels, `confidence`, `class_id`, and `tracker_id` (or `null`).
 
 ## Webhook payload
 
@@ -185,5 +163,4 @@ The Webhook and MQTT actions deliver this JSON for every event:
 }
 ```
 
-`snapshot_url` is present only when a Snapshot action ran earlier in the
-graph, and is relative to the API origin.
+`snapshot_url` is present only when a Snapshot action ran earlier in the graph, and is relative to the API origin.

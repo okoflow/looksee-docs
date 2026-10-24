@@ -2,25 +2,17 @@
 
 # Nodes
 
-Reference for every node in the workflow editor: what it does, its fields
-with defaults and limits, and what the validation on **Run** checks. Field
-names in code style are the keys used in the API; the inspector shows them
-with friendlier labels.
+Reference for every node in the workflow editor: what it does, its fields with defaults and limits, and what the validation on **Run** checks. Field names in code style are the keys used in the API; the inspector shows them with friendlier labels.
 
 ## Connections
 
 - A **Camera** has one output and connects to exactly one **Detect**.
 - **Detect** connects to any number of filters and actions.
-- Every filter has two outputs, **If** and **Else**. An event that passes
-  leaves through **If**; one that fails leaves through **Else**. An edge
-  without a branch counts as **If**.
-- **Snapshot** connects onward to other actions, which then receive the
-  snapshot. Other actions have no output.
+- Every filter has two outputs, **If** and **Else**. An event that passes leaves through **If**; one that fails leaves through **Else**. An edge without a branch counts as **If**.
+- **Snapshot** connects onward to other actions, which then receive the snapshot. Other actions have no output.
 - Every node runs at most once per event.
 
-The palette groups nodes into Sources, Detection, Logic, Object, Spatial,
-Temporal, and Actions. Enterprise nodes (Count, Line crossing, Dwell, Slack)
-show a lock until a license key is configured.
+The palette groups nodes into Sources, Detection, Logic, Object, Spatial, Temporal, and Actions. Enterprise nodes (Count, Line crossing, Dwell, Slack) show a lock until a license key is configured.
 
 ## Sources
 
@@ -32,10 +24,7 @@ show a lock until a license key is configured.
 | `source_type` | `rtsp` | `rtsp`, `rtmp`, `srt`, `webrtc`, `whep`, `file` | **Source**. How MediaMTX ingests the stream; see [Cameras](cameras.md) |
 | `url` | empty | up to 2048 characters | **URL**. Stream URL for pull sources, asset key for `file`; unused for `webrtc` |
 
-On **Run** the URL must match the source type: `rtsp://` or `rtsps://` for
-RTSP, `rtmp://` or `rtmps://` for RTMP, `srt://` for SRT, `http://`,
-`https://`, `whep://`, or `wheps://` for WHEP, and an asset key made of
-letters, digits, `.`, `_`, `-`, and `/` for File.
+On **Run** the URL must match the source type: `rtsp://` or `rtsps://` for RTSP, `rtmp://` or `rtmps://` for RTMP, `srt://` for SRT, `http://`, `https://`, `whep://`, or `wheps://` for WHEP, and an asset key made of letters, digits, `.`, `_`, `-`, and `/` for File.
 
 ## Detection
 
@@ -52,13 +41,11 @@ Selecting a model in Studio fills in its recommended confidence.
 
 ## Filters
 
-A filter passes or fails each event. Filters that inspect detections pass
-an event with no detections, except where noted.
+A filter passes or fails each event. Filters that inspect detections pass an event with no detections, except where noted.
 
 ### If / Else — `if_else_filter`
 
-Compares one property of the event. The `condition` object selects the
-property with `field`:
+Compares one property of the event. The `condition` object selects the property with `field`:
 
 | `field` | `operator` | `value` | Passes when |
 | --- | --- | --- | --- |
@@ -67,8 +54,7 @@ property with `field`:
 | `detection_count` | `eq`, `neq`, `gt`, `gte`, `lt`, `lte` | 0 to 1000, default `gte 1` | The number of detections compares as chosen |
 | `max_confidence` | the same six operators | 0 to 1, default `gte 0.5` | The highest confidence compares as chosen |
 
-On **Run**, `event_kind` and `object_class` need a value, and it must be one
-the upstream model can produce.
+On **Run**, `event_kind` and `object_class` need a value, and it must be one the upstream model can produce.
 
 ### Class — `class_filter`
 
@@ -76,8 +62,7 @@ the upstream model can produce.
 | --- | --- | --- | --- |
 | `classes` | empty | up to 64 labels | Any detection has one of the labels. Empty passes everything. |
 
-Labels must belong to the upstream model. An event with no detections fails
-this filter.
+Labels must belong to the upstream model. An event with no detections fails this filter.
 
 ### Size — `size_filter`
 
@@ -86,8 +71,7 @@ this filter.
 | `min_area` | `0` | 0 to 1 | Any detection's box covers at least this fraction of the frame… |
 | `max_area` | `1` | 0 to 1, at least `min_area` | …and at most this fraction |
 
-Useful to ignore distant objects or false detections the size of a few
-pixels.
+Useful to ignore distant objects or false detections the size of a few pixels.
 
 ### Zone — `zone_filter`
 
@@ -95,8 +79,7 @@ pixels.
 | --- | --- | --- | --- |
 | `polygon` | empty | 3 to 100 points, coordinates 0 to 1 relative to the frame | The centre of any detection's box lies inside the polygon |
 
-Draw the polygon in the inspector or on a live frame with **Edit on
-preview**. On **Run** the polygon needs at least three points.
+Draw the polygon in the inspector or on a live frame with **Edit on preview**. On **Run** the polygon needs at least three points.
 
 ### Schedule — `time_window_filter`
 
@@ -115,8 +98,7 @@ Times are evaluated in `EVENT_TIMEZONE`.
 | --- | --- | --- | --- |
 | `seconds` | `30` | 1 to 3600 | After an event passes, further events from the same camera fail for this long |
 
-The window is kept per node and per camera, so several Debounce nodes in one
-workflow are independent.
+The window is kept per node and per camera, so several Debounce nodes in one workflow are independent.
 
 ### Count — `count_threshold_filter` (Enterprise)
 
@@ -144,9 +126,7 @@ Relies on tracking ids; raise **Checks per second** for fast objects.
 
 ## Actions
 
-Fields marked with a credential type need a stored credential of that type;
-[Actions and integrations](actions-and-integrations.md) describes each
-integration.
+Fields marked with a credential type need a stored credential of that type; [Actions and integrations](actions-and-integrations.md) describes each integration.
 
 ### Alert — `log_alert_action`
 
@@ -209,14 +189,11 @@ integration.
 
 ## Limits
 
-A graph holds up to 200 nodes, 400 edges, and 100 comments. Node ids are up
-to 128 characters and edge ids up to 256.
+A graph holds up to 200 nodes, 400 edges, and 100 comments. Node ids are up to 128 characters and edge ids up to 256.
 
 ## Validation
 
-Saving a graph checks its structure. **Run** additionally checks that every
-node can execute. Studio focuses the node an error refers to; the API returns
-the code in the `code` field with status 422, or 402 for a licensing error.
+Saving a graph checks its structure. **Run** additionally checks that every node can execute. Studio focuses the node an error refers to; the API returns the code in the `code` field with status 422, or 402 for a licensing error.
 
 | Code | Meaning |
 | --- | --- |
@@ -235,5 +212,4 @@ the code in the `code` field with status 422, or 402 for a licensing error.
 | `asset_store_not_configured`, `asset_unavailable` | A File camera without an asset library, or with a missing object |
 | `credential_unavailable`, `credential_type_mismatch` | An action's credential is missing or of another type |
 
-Nodes that no Camera reaches are allowed and ignored at run time; Studio
-marks them with a warning.
+Nodes that no Camera reaches are allowed and ignored at run time; Studio marks them with a warning.

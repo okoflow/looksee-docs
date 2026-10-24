@@ -2,16 +2,11 @@
 
 # Configuration
 
-LookSee is configured through environment variables. With Docker Compose they
-come from `.env` next to `compose.yaml`; `.env.example` lists the variables
-an installation sets, grouped by service, and the tables below cover the
-rest with their defaults. Services read their variables at start, so a
-change takes effect after `docker compose up -d`.
+LookSee is configured through environment variables. With Docker Compose they come from `.env` next to `compose.yaml`; `.env.example` lists the variables an installation sets, grouped by service, and the tables below cover the rest with their defaults. Services read their variables at start, so a change takes effect after `docker compose up -d`.
 
 ## Compose stack
 
-These variables shape the stack itself: images, ports, passwords, and
-resource limits.
+These variables shape the stack itself: images, ports, passwords, and resource limits.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -36,9 +31,7 @@ resource limits.
 | `INFERENCE_MEMORY` | `4g` | Memory limit of the inference container. |
 | `REGISTRY`, `TAG` | `looksee`, `latest` | Image name prefix and tag for the three application images. |
 
-Other services are limited too: `api` 2 CPUs and 1 GB, `postgres` 2 CPUs and
-2 GB, `mediamtx` 2 CPUs and 1 GB, `storage` 2 CPUs and 1 GB, `redis` 1 CPU
-and 768 MB, `studio` 1 CPU and 512 MB. Edit `compose.yaml` or add an override file to change them.
+Other services are limited too: `api` 2 CPUs and 1 GB, `postgres` 2 CPUs and 2 GB, `mediamtx` 2 CPUs and 1 GB, `storage` 2 CPUs and 1 GB, `redis` 1 CPU and 768 MB, `studio` 1 CPU and 512 MB. Edit `compose.yaml` or add an override file to change them.
 
 ## API
 
@@ -79,8 +72,7 @@ and 768 MB, `studio` 1 CPU and 512 MB. Edit `compose.yaml` or add an override fi
 
 ## Studio
 
-Studio reads its configuration on the server for every request and passes the
-public part to the browser, so an image can be repointed without a rebuild.
+Studio reads its configuration on the server for every request and passes the public part to the browser, so an image can be repointed without a rebuild.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -91,8 +83,7 @@ public part to the browser, so an image can be repointed without a rebuild.
 | `RUNTIME_GITHUB_URL` | `https://github.com/okoflow/looksee` | Target of the **GitHub** link. |
 | `SERVER_API_URL` | `http://api:8000` | API address used by the Studio server itself for the sign-in guard. Never sent to the browser. |
 
-Behind a reverse proxy, set the three `RUNTIME_*` URLs to the public
-addresses; [Deployment](deployment.md) has an example.
+Behind a reverse proxy, set the three `RUNTIME_*` URLs to the public addresses; [Deployment](deployment.md) has an example.
 
 ## Ports
 
@@ -120,6 +111,4 @@ addresses; [Deployment](deployment.md) has an example.
 | `media-cache` | api, mediamtx | Cached video files for File cameras |
 | `./models` (bind) | api, inference | Model bundles, read-only |
 
-`postgres_data`, `api_keys`, and `storage_data` hold the state worth backing
-up; without the secret, stored credentials cannot be decrypted and every
-session is signed out. [Deployment](deployment.md#backups) describes a backup routine.
+`postgres_data`, `api_keys`, and `storage_data` hold the state worth backing up; without the secret, stored credentials cannot be decrypted and every session is signed out. [Deployment](deployment.md#backups) describes a backup routine.
