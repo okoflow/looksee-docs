@@ -2,7 +2,7 @@
 
 # Cameras
 
-A Camera node tells LookSee where frames come from. MediaMTX ingests every source, exposes it to the inference service as one RTSP path per camera, and serves the same stream to browsers over WebRTC for the live monitor.
+A Camera node tells Looksee where frames come from. MediaMTX ingests every source, exposes it to the inference service as one RTSP path per camera, and serves the same stream to browsers over WebRTC for the live monitor.
 
 ## Source types
 
@@ -24,7 +24,7 @@ Enter the URL your camera or encoder publishes. Notes for common setups:
 - Use the camera's substream (720p or lower) rather than the main stream. Detection runs at a few frames per second and does not benefit from 4K, while decoding it costs CPU.
 - H.264 decodes everywhere. H.265 works for detection but browsers do not play it over WebRTC, so the live monitor stays black while alerts still arrive.
 - MediaMTX pulls RTSP over TCP. If a camera only offers UDP, put it behind a relay that speaks TCP.
-- A camera on another network needs to be reachable from the machine running LookSee; the browser never connects to the camera directly.
+- A camera on another network needs to be reachable from the machine running Looksee; the browser never connects to the camera directly.
 
 ## Browser webcam
 
@@ -40,7 +40,7 @@ Files are uploaded through Studio or `POST /assets`. On start the API downloads 
 
 ## MediaMTX
 
-MediaMTX runs as the `mediamtx` service with the configuration in `docker/mediamtx/mediamtx.yml`. LookSee manages its paths through the control API on port `9997`; the file itself only sets protocols and authentication:
+MediaMTX runs as the `mediamtx` service with the configuration in `docker/mediamtx/mediamtx.yml`. Looksee manages its paths through the control API on port `9997`; the file itself only sets protocols and authentication:
 
 - RTSP on `8554` over TCP; WebRTC on `8889` with ICE on `8189/udp`. RTMP, HLS, and SRT listeners are off, which does not affect pulling from RTMP or SRT upstreams.
 - Authentication is delegated to the API: MediaMTX calls `/internal/media/auth` for every reader, publisher, and control API request. The inference service and the API use the service user, `MTX_MEDIA_USER` with `MTX_MEDIA_PASSWORD`; browsers present a short-lived, camera-scoped grant issued by the API. [Security](security.md#media-access) has the details.

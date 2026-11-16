@@ -2,7 +2,7 @@
 
 # 보안
 
-이 페이지는 LookSee가 인스턴스를 보호하는 방식과 운영자가 신경 써야 할 사항을 설명합니다. 취약점 보고를 다루는 저장소의 [보안 정책](https://github.com/okoflow/looksee/blob/main/SECURITY.md)을 보완합니다.
+이 페이지는 Looksee가 인스턴스를 보호하는 방식과 운영자가 신경 써야 할 사항을 설명합니다. 취약점 보고를 다루는 저장소의 [보안 정책](https://github.com/okoflow/looksee/blob/main/SECURITY.md)을 보완합니다.
 
 ## 계정과 세션
 

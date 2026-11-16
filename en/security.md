@@ -2,7 +2,7 @@
 
 # Security
 
-This page describes how LookSee protects an instance and what an operator has to take care of. It complements the [security policy](https://github.com/okoflow/looksee/blob/main/SECURITY.md) in the repository, which covers reporting vulnerabilities.
+This page describes how Looksee protects an instance and what an operator has to take care of. It complements the [security policy](https://github.com/okoflow/looksee/blob/main/SECURITY.md) in the repository, which covers reporting vulnerabilities.
 
 ## Accounts and sessions
 

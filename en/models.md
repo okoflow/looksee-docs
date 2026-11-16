@@ -2,7 +2,7 @@
 
 # Models
 
-LookSee runs object detection models exported to ONNX. A model is installed as a *bundle*: a directory under `models/` with the ONNX file and a manifest. The API discovers bundles at runtime, Detect nodes choose among them, and the inference service loads a model once and shares it between cameras.
+Looksee runs object detection models exported to ONNX. A model is installed as a *bundle*: a directory under `models/` with the ONNX file and a manifest. The API discovers bundles at runtime, Detect nodes choose among them, and the inference service loads a model once and shares it between cameras.
 
 ## Bundle layout
 
@@ -91,4 +91,4 @@ Guidance for the two Detect settings:
 
 ## Where to get models
 
-LookSee ships without models, and the repository does not host any. Train or fine-tune a D-FINE model on your classes, export it as described above, and write a manifest for it. A bundle is a plain directory, so it can be copied between machines or kept in your own storage.
+Looksee ships without models, and the repository does not host any. Train or fine-tune a D-FINE model on your classes, export it as described above, and write a manifest for it. A bundle is a plain directory, so it can be copied between machines or kept in your own storage.

@@ -40,7 +40,7 @@ The Snapshot comes first so the alert carries the photo. Any other action connec
 
 ## Run it
 
-Click **Save**, then **Run**. LookSee validates the graph and points at the node to fix when something is missing: a camera without a URL, a Detect without a model, an action without a credential. When the graph is valid the workflow status turns **Active** and the camera goes from **Pending** to **Active** (**Starting** to **Live** in the monitor) within a few seconds.
+Click **Save**, then **Run**. Looksee validates the graph and points at the node to fix when something is missing: a camera without a URL, a Detect without a model, an action without a credential. When the graph is valid the workflow status turns **Active** and the camera goes from **Pending** to **Active** (**Starting** to **Live** in the monitor) within a few seconds.
 
 Switch to **Monitor**. The camera plays live with the zone drawn over it, detections appear as boxes, the **Live** tab lists events as they enter the graph, and the **Alerts** tab shows each alert with its snapshot.
 

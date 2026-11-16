@@ -2,7 +2,7 @@
 
 # Actions and integrations
 
-Actions are the nodes at the end of a workflow: they turn an event into an alert, a snapshot, or a message to an external system. Actions that talk to a service authenticate with a credential stored in LookSee.
+Actions are the nodes at the end of a workflow: they turn an event into an alert, a snapshot, or a message to an external system. Actions that talk to a service authenticate with a credential stored in Looksee.
 
 ## Credentials
 
@@ -36,7 +36,7 @@ The default message template is `[{kind}] camera={camera_id} at {ts}`. A templat
 
 ## Alert
 
-Records the event in the alert history and shows it in the monitor. Fields: `severity` (`info`, `warning`, `critical`) and `cooldown_seconds` in seconds (0 to 3600, default 30). Within the cooldown, repeats on the same camera are dropped; `0` records every event. Alerts are the only action with a history inside LookSee; [Monitoring and alerts](monitoring-and-alerts.md) covers it.
+Records the event in the alert history and shows it in the monitor. Fields: `severity` (`info`, `warning`, `critical`) and `cooldown_seconds` in seconds (0 to 3600, default 30). Within the cooldown, repeats on the same camera are dropped; `0` records every event. Alerts are the only action with a history inside Looksee; [Monitoring and alerts](monitoring-and-alerts.md) covers it.
 
 ## Snapshot
 

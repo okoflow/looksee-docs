@@ -2,7 +2,7 @@
 
 # Configuration
 
-LookSee is configured through environment variables. With Docker Compose they come from `.env` next to `compose.yaml`; `.env.example` lists the variables an installation sets, grouped by service, and the tables below cover the rest with their defaults. Services read their variables at start, so a change takes effect after `docker compose up -d`.
+Looksee is configured through environment variables. With Docker Compose they come from `.env` next to `compose.yaml`; `.env.example` lists the variables an installation sets, grouped by service, and the tables below cover the rest with their defaults. Services read their variables at start, so a change takes effect after `docker compose up -d`.
 
 ## Compose stack
 

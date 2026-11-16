@@ -2,7 +2,7 @@
 
 # Deployment
 
-[Getting started](getting-started.md) runs LookSee on one machine. This page covers a server that other people use: addressing, TLS through a reverse proxy, GPU inference, backups, and upgrades.
+[Getting started](getting-started.md) runs Looksee on one machine. This page covers a server that other people use: addressing, TLS through a reverse proxy, GPU inference, backups, and upgrades.
 
 ## A server on your network
 

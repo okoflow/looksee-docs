@@ -2,7 +2,7 @@
 
 # Редакция Enterprise
 
-LookSee поставляется одним набором образов с двумя редакциями. Редакция Community — это код за пределами каталога `ee/` репозитория, лицензированный под Apache-2.0. Редакция Enterprise — это код внутри `ee/`, лицензированный под [лицензией LookSee Enterprise](https://github.com/okoflow/looksee/blob/main/ee/LICENSE) и разблокируемый лицензионным ключом.
+Looksee поставляется одним набором образов с двумя редакциями. Редакция Community — это код за пределами каталога `ee/` репозитория, лицензированный под Apache-2.0. Редакция Enterprise — это код внутри `ee/`, лицензированный под [лицензией Looksee Enterprise](https://github.com/okoflow/looksee/blob/main/ee/LICENSE) и разблокируемый лицензионным ключом.
 
 ## Возможности
 
