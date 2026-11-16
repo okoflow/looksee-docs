@@ -1,6 +1,6 @@
-# LookSee documentation
+# Looksee documentation
 
-Documentation for [LookSee](https://github.com/okoflow/looksee), the self-hosted video analytics system with a visual workflow editor. The same pages are maintained in four languages:
+Documentation for [Looksee](https://github.com/okoflow/looksee), the self-hosted video analytics system with a visual workflow editor. The same pages are maintained in four languages:
 
 | Language | Start page |
 | --- | --- |

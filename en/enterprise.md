@@ -2,7 +2,7 @@
 
 # Enterprise edition
 
-LookSee ships in one set of images with two editions. The Community edition is the code outside the `ee/` directory of the repository, licensed under Apache-2.0. The Enterprise edition is the code inside `ee/`, licensed under the [LookSee Enterprise license](https://github.com/okoflow/looksee/blob/main/ee/LICENSE), and unlocked with a license key.
+Looksee ships in one set of images with two editions. The Community edition is the code outside the `ee/` directory of the repository, licensed under Apache-2.0. The Enterprise edition is the code inside `ee/`, licensed under the [Looksee Enterprise license](https://github.com/okoflow/looksee/blob/main/ee/LICENSE), and unlocked with a license key.
 
 ## Features
 

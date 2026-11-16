@@ -1,8 +1,8 @@
-# LookSee documentation
+# Looksee documentation
 
 **English** · [Русский](../ru/index.md) · [עברית](../he/index.md) · [한국어](../ko/index.md)
 
-LookSee is a self-hosted video analytics system. It watches live streams, browser webcams, and video files, runs ONNX object detection on them, and turns detections into events. A workflow graph decides what happens next: filters narrow the events down to what matters, and actions deliver alerts, snapshots, and messages to the people and systems that need them.
+Looksee is a self-hosted video analytics system. It watches live streams, browser webcams, and video files, runs ONNX object detection on them, and turns detections into events. A workflow graph decides what happens next: filters narrow the events down to what matters, and actions deliver alerts, snapshots, and messages to the people and systems that need them.
 
 Everything runs on your hardware from one Docker Compose file. The source code lives in the [okoflow/looksee](https://github.com/okoflow/looksee) repository under Apache-2.0; an Enterprise edition adds line crossing, dwell time, counting, and Slack.
 

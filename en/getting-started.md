@@ -2,7 +2,7 @@
 
 # Getting started
 
-This page takes LookSee from a fresh machine to a signed-in Studio with a detection model ready to use. It uses Docker Compose, which is the supported way to run LookSee.
+This page takes Looksee from a fresh machine to a signed-in Studio with a detection model ready to use. It uses Docker Compose, which is the supported way to run Looksee.
 
 ## Requirements
 
@@ -49,7 +49,7 @@ Open `http://<WEBRTC_HOST_IP>:3000`. Studio redirects to the setup page while no
 
 ## Add a detection model
 
-LookSee ships without models. A model is a directory under `models/` in the repository checkout with two files:
+Looksee ships without models. A model is a directory under `models/` in the repository checkout with two files:
 
 ```text
 models/

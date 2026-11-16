@@ -2,7 +2,7 @@
 
 # Enterprise 에디션
 
-LookSee는 하나의 이미지 세트에 두 에디션을 담아 배포됩니다. Community 에디션은 저장소의 `ee/` 디렉터리 밖의 코드로, Apache-2.0으로 라이선스됩니다. Enterprise 에디션은 `ee/` 안의 코드로, [LookSee Enterprise 라이선스](https://github.com/okoflow/looksee/blob/main/ee/LICENSE)로 라이선스되며 라이선스 키로 잠금 해제됩니다.
+Looksee는 하나의 이미지 세트에 두 에디션을 담아 배포됩니다. Community 에디션은 저장소의 `ee/` 디렉터리 밖의 코드로, Apache-2.0으로 라이선스됩니다. Enterprise 에디션은 `ee/` 안의 코드로, [Looksee Enterprise 라이선스](https://github.com/okoflow/looksee/blob/main/ee/LICENSE)로 라이선스되며 라이선스 키로 잠금 해제됩니다.
 
 ## 기능
 

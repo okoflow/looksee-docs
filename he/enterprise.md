@@ -2,7 +2,7 @@
 
 # מהדורת Enterprise
 
-LookSee מסופקת בסט אחד של אימג'ים עם שתי מהדורות. מהדורת Community היא הקוד שמחוץ לספרייה `ee/` של המאגר, מורשה תחת Apache-2.0. מהדורת Enterprise היא הקוד שבתוך `ee/`, מורשה תחת [רישיון LookSee Enterprise](https://github.com/okoflow/looksee/blob/main/ee/LICENSE), ונפתחת באמצעות מפתח רישיון.
+Looksee מסופקת בסט אחד של אימג'ים עם שתי מהדורות. מהדורת Community היא הקוד שמחוץ לספרייה `ee/` של המאגר, מורשה תחת Apache-2.0. מהדורת Enterprise היא הקוד שבתוך `ee/`, מורשה תחת [רישיון Looksee Enterprise](https://github.com/okoflow/looksee/blob/main/ee/LICENSE), ונפתחת באמצעות מפתח רישיון.
 
 ## תכונות
 

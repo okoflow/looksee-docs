@@ -2,7 +2,7 @@
 
 # Changelog
 
-Release history of LookSee. Versions follow semantic versioning, and dates are release dates. Changes on `main` that are not released yet are listed under *Unreleased*.
+Release history of Looksee. Versions follow semantic versioning, and dates are release dates. Changes on `main` that are not released yet are listed under *Unreleased*.
 
 ## [Unreleased]
 

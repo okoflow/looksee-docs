@@ -2,7 +2,7 @@
 
 # 구성
 
-LookSee는 환경 변수로 구성합니다. Docker Compose에서는 `compose.yaml` 옆의 `.env`에서 읽으며, `.env.example`은 설치 시 설정하는 변수를 서비스별로 묶어 나열하고, 나머지는 아래 표에 기본값과 함께 있습니다. 서비스는 시작할 때 변수를 읽으므로 변경 사항은 `docker compose up -d` 뒤에 적용됩니다.
+Looksee는 환경 변수로 구성합니다. Docker Compose에서는 `compose.yaml` 옆의 `.env`에서 읽으며, `.env.example`은 설치 시 설정하는 변수를 서비스별로 묶어 나열하고, 나머지는 아래 표에 기본값과 함께 있습니다. 서비스는 시작할 때 변수를 읽으므로 변경 사항은 `docker compose up -d` 뒤에 적용됩니다.
 
 ## Compose 스택
 
