@@ -43,12 +43,12 @@ Filter state and cooldowns live in the memory of the API process. They reset whe
 
 Every Camera node in a workflow becomes a camera record with a status:
 
-| Status | Meaning |
-| --- | --- |
+| Status      | Meaning                                                                            |
+| ----------- | ---------------------------------------------------------------------------------- |
 | **Pending** | The workflow is running and the inference service has not confirmed the stream yet |
-| **Active** | Frames are being processed |
-| **Error** | The stream failed; the API retries with a growing delay |
-| **Off** | The workflow is stopped |
+| **Active**  | Frames are being processed                                                         |
+| **Error**   | The stream failed; the API retries with a growing delay                            |
+| **Off**     | The workflow is stopped                                                            |
 
 The monitor shows the same states as **Starting**, **Live**, **Error**, and **Off**; the API reports them as `pending`, `active`, `error`, and `disabled`.
 

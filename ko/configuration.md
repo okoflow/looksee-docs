@@ -87,28 +87,28 @@ Studio는 요청마다 서버에서 구성을 읽고 공개 부분을 브라우�
 
 ## 포트
 
-| 포트 | 서비스 | 바인딩 | 용도 |
-| --- | --- | --- | --- |
-| `3000` | studio | 모든 인터페이스 | 웹 인터페이스 |
-| `8000` | api | 모든 인터페이스 | HTTP API와 WebSocket |
-| `8554` | mediamtx | 모든 인터페이스 | RTSP |
-| `8889` | mediamtx | 모든 인터페이스 | WebRTC 시그널링과 재생 |
-| `8189/udp` | mediamtx | 모든 인터페이스 | WebRTC 미디어 |
-| `9997` | mediamtx | `127.0.0.1` | MediaMTX 제어 API |
-| `9000` | storage | `127.0.0.1` | 비디오 저장소의 S3 API |
-| `5432` | postgres | `127.0.0.1` | PostgreSQL |
-| `6379` | redis | `127.0.0.1` | Valkey |
+| 포트       | 서비스   | 바인딩          | 용도                   |
+| ---------- | -------- | --------------- | ---------------------- |
+| `3000`     | studio   | 모든 인터페이스 | 웹 인터페이스          |
+| `8000`     | api      | 모든 인터페이스 | HTTP API와 WebSocket   |
+| `8554`     | mediamtx | 모든 인터페이스 | RTSP                   |
+| `8889`     | mediamtx | 모든 인터페이스 | WebRTC 시그널링과 재생 |
+| `8189/udp` | mediamtx | 모든 인터페이스 | WebRTC 미디어          |
+| `9997`     | mediamtx | `127.0.0.1`     | MediaMTX 제어 API      |
+| `9000`     | storage  | `127.0.0.1`     | 비디오 저장소의 S3 API |
+| `5432`     | postgres | `127.0.0.1`     | PostgreSQL             |
+| `6379`     | redis    | `127.0.0.1`     | Valkey                 |
 
 ## 볼륨
 
-| 볼륨 | 서비스 | 내용 |
-| --- | --- | --- |
-| `postgres_data` | postgres | 워크플로, 카메라, 자격 증명, 알림, 사용자, 대기 중인 전달 |
-| `storage_data` | storage | File 카메라용으로 업로드한 비디오 파일 |
-| `redis_data` | redis | 탐지 스트림과 명령 채널. 잃어도 안전함 |
-| `api_snapshots` | api | 스냅샷 JPEG 파일 |
-| `api_keys` | api | 생성된 `secret.key` |
-| `media-cache` | api, mediamtx | File 카메라용으로 캐시된 비디오 파일 |
-| `./models`(바인드) | api, inference | 모델 번들, 읽기 전용 |
+| 볼륨               | 서비스         | 내용                                                      |
+| ------------------ | -------------- | --------------------------------------------------------- |
+| `postgres_data`    | postgres       | 워크플로, 카메라, 자격 증명, 알림, 사용자, 대기 중인 전달 |
+| `storage_data`     | storage        | File 카메라용으로 업로드한 비디오 파일                    |
+| `redis_data`       | redis          | 탐지 스트림과 명령 채널. 잃어도 안전함                    |
+| `api_snapshots`    | api            | 스냅샷 JPEG 파일                                          |
+| `api_keys`         | api            | 생성된 `secret.key`                                       |
+| `media-cache`      | api, mediamtx  | File 카메라용으로 캐시된 비디오 파일                      |
+| `./models`(바인드) | api, inference | 모델 번들, 읽기 전용                                      |
 
 `postgres_data`, `api_keys`, `storage_data`가 백업할 가치가 있는 상태를 담습니다. 시크릿이 없으면 저장된 자격 증명을 해독할 수 없고 모든 세션이 로그아웃됩니다. [배포](deployment.md#백업)에서 백업 절차를 설명합니다.

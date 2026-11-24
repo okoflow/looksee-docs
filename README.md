@@ -2,12 +2,12 @@
 
 Documentation for [Looksee](https://github.com/okoflow/looksee), the self-hosted video analytics system with a visual workflow editor. The same pages are maintained in four languages:
 
-| Language | Start page |
-| --- | --- |
-| English | [en/index.md](en/index.md) |
-| Русский | [ru/index.md](ru/index.md) |
-| עברית | [he/index.md](he/index.md) |
-| 한국어 | [ko/index.md](ko/index.md) |
+| Language | Start page                 |
+| -------- | -------------------------- |
+| English  | [en/index.md](en/index.md) |
+| Русский  | [ru/index.md](ru/index.md) |
+| עברית    | [he/index.md](he/index.md) |
+| 한국어   | [ko/index.md](ko/index.md) |
 
 Every language directory holds the same set of files under the same names, so a page in one language links to its sibling in another by directory only. Screenshots are shared from `images/`.
 

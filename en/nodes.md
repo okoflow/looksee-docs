@@ -58,18 +58,18 @@ On **Run**, `event_kind` and `object_class` need a value, and it must be one the
 
 ### Class — `class_filter`
 
-| Field | Default | Limits | Passes when |
-| --- | --- | --- | --- |
-| `classes` | empty | up to 64 labels | Any detection has one of the labels. Empty passes everything. |
+| Field     | Default | Limits          | Passes when                                                   |
+| --------- | ------- | --------------- | ------------------------------------------------------------- |
+| `classes` | empty   | up to 64 labels | Any detection has one of the labels. Empty passes everything. |
 
 Labels must belong to the upstream model. An event with no detections fails this filter.
 
 ### Size — `size_filter`
 
-| Field | Default | Limits | Passes when |
-| --- | --- | --- | --- |
-| `min_area` | `0` | 0 to 1 | Any detection's box covers at least this fraction of the frame… |
-| `max_area` | `1` | 0 to 1, at least `min_area` | …and at most this fraction |
+| Field      | Default | Limits                      | Passes when                                                     |
+| ---------- | ------- | --------------------------- | --------------------------------------------------------------- |
+| `min_area` | `0`     | 0 to 1                      | Any detection's box covers at least this fraction of the frame… |
+| `max_area` | `1`     | 0 to 1, at least `min_area` | …and at most this fraction                                      |
 
 Useful to ignore distant objects or false detections the size of a few pixels.
 
@@ -94,9 +94,9 @@ Times are evaluated in `EVENT_TIMEZONE`.
 
 ### Debounce — `debounce_filter`
 
-| Field | Default | Limits | Meaning |
-| --- | --- | --- | --- |
-| `seconds` | `30` | 1 to 3600 | After an event passes, further events from the same camera fail for this long |
+| Field     | Default | Limits    | Meaning                                                                       |
+| --------- | ------- | --------- | ----------------------------------------------------------------------------- |
+| `seconds` | `30`    | 1 to 3600 | After an event passes, further events from the same camera fail for this long |
 
 The window is kept per node and per camera, so several Debounce nodes in one workflow are independent.
 
@@ -119,10 +119,10 @@ Relies on tracking ids; raise **Checks per second** for fast objects.
 
 ### Dwell — `dwell_filter` (Enterprise)
 
-| Field | Default | Limits | Passes when |
-| --- | --- | --- | --- |
-| `polygon` | empty | 3 to 100 points | |
-| `min_seconds` | `60` | 1 to 3600 | A tracked object has stayed inside the polygon for at least this long |
+| Field         | Default | Limits          | Passes when                                                           |
+| ------------- | ------- | --------------- | --------------------------------------------------------------------- |
+| `polygon`     | empty   | 3 to 100 points |                                                                       |
+| `min_seconds` | `60`    | 1 to 3600       | A tracked object has stayed inside the polygon for at least this long |
 
 ## Actions
 
@@ -130,62 +130,62 @@ Fields marked with a credential type need a stored credential of that type; [Act
 
 ### Alert — `log_alert_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `severity` | `warning` | **Severity**: `info`, `warning`, `critical` |
-| `cooldown_seconds` | `30` | **Cooldown seconds**, 0 to 3600; `0` records every event |
+| Field              | Default   | Limits                                                   |
+| ------------------ | --------- | -------------------------------------------------------- |
+| `severity`         | `warning` | **Severity**: `info`, `warning`, `critical`              |
+| `cooldown_seconds` | `30`      | **Cooldown seconds**, 0 to 3600; `0` records every event |
 
 ### Snapshot — `snapshot_action`
 
-| Field | Default |
-| --- | --- |
+| Field      | Default                                           |
+| ---------- | ------------------------------------------------- |
 | `annotate` | on: draw detections onto the image (**Annotate**) |
 
 ### Webhook — `webhook_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `url` | empty | **URL**: an `http://` or `https://` URL on **Run** |
-| `method` | `POST` | **Method**: `POST`, `GET`, `PUT` |
+| Field    | Default | Limits                                             |
+| -------- | ------- | -------------------------------------------------- |
+| `url`    | empty   | **URL**: an `http://` or `https://` URL on **Run** |
+| `method` | `POST`  | **Method**: `POST`, `GET`, `PUT`                   |
 
 ### Telegram — `telegram_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `credential_id` | none | a `telegram_bot` credential |
-| `chat_id` | empty | 1 to 64 characters |
-| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 4096 characters |
+| Field              | Default                               | Limits                      |
+| ------------------ | ------------------------------------- | --------------------------- |
+| `credential_id`    | none                                  | a `telegram_bot` credential |
+| `chat_id`          | empty                                 | 1 to 64 characters          |
+| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 4096 characters       |
 
 ### Email — `email_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `credential_id` | none | an `smtp` credential |
-| `to` | empty | up to 320 characters |
-| `subject_template` | `[{kind}] on camera {camera_id}` | up to 998 characters |
-| `body_template` | `{kind} at {ts}`, camera, snapshot | up to 8192 characters |
+| Field              | Default                            | Limits                |
+| ------------------ | ---------------------------------- | --------------------- |
+| `credential_id`    | none                               | an `smtp` credential  |
+| `to`               | empty                              | up to 320 characters  |
+| `subject_template` | `[{kind}] on camera {camera_id}`   | up to 998 characters  |
+| `body_template`    | `{kind} at {ts}`, camera, snapshot | up to 8192 characters |
 
 ### MQTT — `mqtt_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `credential_id` | none | an `mqtt` credential |
-| `topic` | `looksee/events` | 1 to 512 characters |
+| Field              | Default                       | Limits                |
+| ------------------ | ----------------------------- | --------------------- |
+| `credential_id`    | none                          | an `mqtt` credential  |
+| `topic`            | `looksee/events`              | 1 to 512 characters   |
 | `payload_template` | empty: send the event as JSON | up to 8192 characters |
 
 ### Discord — `discord_action`
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `credential_id` | none | a `discord_webhook` credential |
-| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 2000 characters |
+| Field              | Default                               | Limits                         |
+| ------------------ | ------------------------------------- | ------------------------------ |
+| `credential_id`    | none                                  | a `discord_webhook` credential |
+| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 2000 characters          |
 
 ### Slack — `slack_action` (Enterprise)
 
-| Field | Default | Limits |
-| --- | --- | --- |
-| `credential_id` | none | a `slack_webhook` credential |
-| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 4096 characters |
+| Field              | Default                               | Limits                       |
+| ------------------ | ------------------------------------- | ---------------------------- |
+| `credential_id`    | none                                  | a `slack_webhook` credential |
+| `message_template` | `[{kind}] camera={camera_id} at {ts}` | up to 4096 characters        |
 
 ## Limits
 

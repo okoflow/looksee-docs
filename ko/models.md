@@ -46,12 +46,12 @@ models/
 
 매니페스트에서 달리 정하지 않으면 모든 레이블이 이벤트 종류가 됩니다. 레이블을 대문자로 바꾸고, 영문자와 숫자가 아닌 문자의 연속을 `_`로 바꾸고, 숫자로 시작하는 레이블에는 `CLASS_` 접두사를 붙인 뒤, `_DETECTED`를 덧붙입니다.
 
-| 레이블 | 이벤트 종류 |
-| --- | --- |
-| `helmet` | `HELMET_DETECTED` |
-| `space-empty` | `SPACE_EMPTY_DETECTED` |
+| 레이블             | 이벤트 종류                 |
+| ------------------ | --------------------------- |
+| `helmet`           | `HELMET_DETECTED`           |
+| `space-empty`      | `SPACE_EMPTY_DETECTED`      |
 | `trafficLight-Red` | `TRAFFICLIGHT_RED_DETECTED` |
-| `9mm` | `CLASS_9MM_DETECTED` |
+| `9mm`              | `CLASS_9MM_DETECTED`        |
 
 이벤트 종류는 Detect 노드의 **Events** 필드와 If / Else 조건의 **event kind**가 제시하는 항목입니다. 레이블에 더 명확한 이름을 붙이거나 `other` 같은 배경 클래스를 침묵시키려면 매니페스트의 `events`를 사용합니다.
 
