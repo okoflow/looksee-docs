@@ -46,12 +46,12 @@ Unknown fields are rejected, so a typo in a field name is reported instead of ig
 
 Every label becomes an event kind unless the manifest says otherwise. The label is upper-cased, runs of characters other than letters and digits become `_`, a label that starts with a digit gets a `CLASS_` prefix, and `_DETECTED` is appended:
 
-| Label | Event kind |
-| --- | --- |
-| `helmet` | `HELMET_DETECTED` |
-| `space-empty` | `SPACE_EMPTY_DETECTED` |
+| Label              | Event kind                  |
+| ------------------ | --------------------------- |
+| `helmet`           | `HELMET_DETECTED`           |
+| `space-empty`      | `SPACE_EMPTY_DETECTED`      |
 | `trafficLight-Red` | `TRAFFICLIGHT_RED_DETECTED` |
-| `9mm` | `CLASS_9MM_DETECTED` |
+| `9mm`              | `CLASS_9MM_DETECTED`        |
 
 Event kinds are what the Detect node's **Events** field and the If / Else condition **event kind** offer. Use `events` in the manifest to give a label a clearer name, or to silence background classes such as `other`:
 

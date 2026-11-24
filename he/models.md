@@ -46,12 +46,12 @@ models/
 
 כל תווית הופכת לסוג אירוע אלא אם המניפסט קובע אחרת. התווית מומרת לאותיות רישיות, רצפים של תווים שאינם אותיות או ספרות הופכים ל-`_`, תווית שמתחילה בספרה מקבלת את הקידומת `CLASS_`, ו-`_DETECTED` מתווסף בסוף:
 
-| תווית | סוג אירוע |
-| --- | --- |
-| `helmet` | `HELMET_DETECTED` |
-| `space-empty` | `SPACE_EMPTY_DETECTED` |
+| תווית              | סוג אירוע                   |
+| ------------------ | --------------------------- |
+| `helmet`           | `HELMET_DETECTED`           |
+| `space-empty`      | `SPACE_EMPTY_DETECTED`      |
 | `trafficLight-Red` | `TRAFFICLIGHT_RED_DETECTED` |
-| `9mm` | `CLASS_9MM_DETECTED` |
+| `9mm`              | `CLASS_9MM_DETECTED`        |
 
 סוגי האירועים הם מה שהשדה **Events** של צומת Detect והתנאי **event kind** של If / Else מציעים. השתמשו ב-`events` במניפסט כדי לתת לתווית שם ברור יותר, או כדי להשתיק מחלקות רקע כמו `other`:
 

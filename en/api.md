@@ -24,16 +24,16 @@ Errors return JSON with a `detail` message. Workflow graph errors add a stable `
 { "detail": "camera 'camera' reaches no detect node", "code": "detect_node_missing", "node_id": "camera" }
 ```
 
-| Status | Meaning |
-| --- | --- |
-| `401` | Missing or invalid session; wrong email or password |
-| `402` | The graph uses an Enterprise node without a license (`feature_not_licensed`) |
-| `403` | The `Origin` header matches neither `CORS_ORIGIN_REGEX` nor the API's own origin |
-| `404` | Unknown workflow, camera, alert, credential, delivery, or asset |
-| `409` | The owner account already exists; a retry of a delivery that has not failed |
-| `422` | Validation failed: a field is out of range, or the graph cannot run (`code` set) |
-| `429` | Too many sign-in attempts; wait for `Retry-After` |
-| `503` | Video storage is not configured or unreachable; sign-in while Valkey is unavailable |
+| Status | Meaning                                                                             |
+| ------ | ----------------------------------------------------------------------------------- |
+| `401`  | Missing or invalid session; wrong email or password                                 |
+| `402`  | The graph uses an Enterprise node without a license (`feature_not_licensed`)        |
+| `403`  | The `Origin` header matches neither `CORS_ORIGIN_REGEX` nor the API's own origin    |
+| `404`  | Unknown workflow, camera, alert, credential, delivery, or asset                     |
+| `409`  | The owner account already exists; a retry of a delivery that has not failed         |
+| `422`  | Validation failed: a field is out of range, or the graph cannot run (`code` set)    |
+| `429`  | Too many sign-in attempts; wait for `Retry-After`                                   |
+| `503`  | Video storage is not configured or unreachable; sign-in while Valkey is unavailable |
 
 [Nodes](nodes.md#validation) lists every graph error code.
 
@@ -41,15 +41,15 @@ Errors return JSON with a `detail` message. Workflow graph errors add a stable `
 
 ### Health and setup
 
-| Method and path | Description |
-| --- | --- |
-| `GET /health` | Returns `{"status":"ok"}`; unauthenticated |
-| `GET /auth/status` | `{"requires_setup": true}` until the owner exists |
-| `POST /auth/setup` | Create the owner: `email`, `name`, `password`. Sets the session cookie. |
-| `POST /auth/login` | `email`, `password`. Sets the session cookie. |
-| `POST /auth/logout` | Clears the cookie |
-| `GET /auth/me` | The signed-in user |
-| `GET /entitlements` | `{"edition": "community", "features": []}` or the Enterprise features |
+| Method and path     | Description                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| `GET /health`       | Returns `{"status":"ok"}`; unauthenticated                              |
+| `GET /auth/status`  | `{"requires_setup": true}` until the owner exists                       |
+| `POST /auth/setup`  | Create the owner: `email`, `name`, `password`. Sets the session cookie. |
+| `POST /auth/login`  | `email`, `password`. Sets the session cookie.                           |
+| `POST /auth/logout` | Clears the cookie                                                       |
+| `GET /auth/me`      | The signed-in user                                                      |
+| `GET /entitlements` | `{"edition": "community", "features": []}` or the Enterprise features   |
 
 ### Media
 
@@ -125,12 +125,12 @@ Webhook, Telegram, Discord, Slack, Email, and MQTT messages queued by the graph;
 
 Available when the asset library is configured, which the compose stack does by default; every call returns `503` while the storage is unreachable.
 
-| Method and path | Description |
-| --- | --- |
-| `GET /assets` | Objects in the bucket |
-| `POST /assets` | Multipart upload with a `file` field; returns `201` |
-| `GET /assets/{key}/content` | The cached file, with range requests for playback |
-| `DELETE /assets/{key}` | Delete the object |
+| Method and path             | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| `GET /assets`               | Objects in the bucket                               |
+| `POST /assets`              | Multipart upload with a `file` field; returns `201` |
+| `GET /assets/{key}/content` | The cached file, with range requests for playback   |
+| `DELETE /assets/{key}`      | Delete the object                                   |
 
 ### Snapshots
 

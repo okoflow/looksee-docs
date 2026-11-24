@@ -24,12 +24,12 @@ Actions reference a credential by id and check its type when the workflow starts
 
 Telegram, Discord, Slack, email, and MQTT actions format their text from a template with these placeholders:
 
-| Placeholder | Value |
-| --- | --- |
-| `{kind}` | The event kind, such as `HELMET_DETECTED` |
-| `{camera_id}` | The camera id |
-| `{ts}` | The event time in ISO 8601 |
-| `{count}` | How many detections produced the event |
+| Placeholder      | Value                                                          |
+| ---------------- | -------------------------------------------------------------- |
+| `{kind}`         | The event kind, such as `HELMET_DETECTED`                      |
+| `{camera_id}`    | The camera id                                                  |
+| `{ts}`           | The event time in ISO 8601                                     |
+| `{count}`        | How many detections produced the event                         |
 | `{snapshot_url}` | The snapshot path when a Snapshot ran earlier, otherwise empty |
 
 The default message template is `[{kind}] camera={camera_id} at {ts}`. A template with an unknown placeholder is sent as written and a warning is logged.

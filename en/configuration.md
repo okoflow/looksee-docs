@@ -87,28 +87,28 @@ Behind a reverse proxy, set the three `RUNTIME_*` URLs to the public addresses; 
 
 ## Ports
 
-| Port | Service | Bound to | Purpose |
-| --- | --- | --- | --- |
-| `3000` | studio | all interfaces | Web interface |
-| `8000` | api | all interfaces | HTTP API and WebSocket |
-| `8554` | mediamtx | all interfaces | RTSP |
-| `8889` | mediamtx | all interfaces | WebRTC signalling and playback |
-| `8189/udp` | mediamtx | all interfaces | WebRTC media |
-| `9997` | mediamtx | `127.0.0.1` | MediaMTX control API |
-| `9000` | storage | `127.0.0.1` | S3 API of the video storage |
-| `5432` | postgres | `127.0.0.1` | PostgreSQL |
-| `6379` | redis | `127.0.0.1` | Valkey |
+| Port       | Service  | Bound to       | Purpose                        |
+| ---------- | -------- | -------------- | ------------------------------ |
+| `3000`     | studio   | all interfaces | Web interface                  |
+| `8000`     | api      | all interfaces | HTTP API and WebSocket         |
+| `8554`     | mediamtx | all interfaces | RTSP                           |
+| `8889`     | mediamtx | all interfaces | WebRTC signalling and playback |
+| `8189/udp` | mediamtx | all interfaces | WebRTC media                   |
+| `9997`     | mediamtx | `127.0.0.1`    | MediaMTX control API           |
+| `9000`     | storage  | `127.0.0.1`    | S3 API of the video storage    |
+| `5432`     | postgres | `127.0.0.1`    | PostgreSQL                     |
+| `6379`     | redis    | `127.0.0.1`    | Valkey                         |
 
 ## Volumes
 
-| Volume | Service | Contents |
-| --- | --- | --- |
-| `postgres_data` | postgres | Workflows, cameras, credentials, alerts, users, queued deliveries |
-| `storage_data` | storage | Uploaded video files for File cameras |
-| `redis_data` | redis | Detection stream and command channels; safe to lose |
-| `api_snapshots` | api | Snapshot JPEG files |
-| `api_keys` | api | The generated `secret.key` |
-| `media-cache` | api, mediamtx | Cached video files for File cameras |
-| `./models` (bind) | api, inference | Model bundles, read-only |
+| Volume            | Service        | Contents                                                          |
+| ----------------- | -------------- | ----------------------------------------------------------------- |
+| `postgres_data`   | postgres       | Workflows, cameras, credentials, alerts, users, queued deliveries |
+| `storage_data`    | storage        | Uploaded video files for File cameras                             |
+| `redis_data`      | redis          | Detection stream and command channels; safe to lose               |
+| `api_snapshots`   | api            | Snapshot JPEG files                                               |
+| `api_keys`        | api            | The generated `secret.key`                                        |
+| `media-cache`     | api, mediamtx  | Cached video files for File cameras                               |
+| `./models` (bind) | api, inference | Model bundles, read-only                                          |
 
 `postgres_data`, `api_keys`, and `storage_data` hold the state worth backing up; without the secret, stored credentials cannot be decrypted and every session is signed out. [Deployment](deployment.md#backups) describes a backup routine.
